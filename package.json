@@ -70,6 +70,7 @@
   },
   "dependencies": {
     "@nextui-org/react": "^1.0.2-beta.4",
-    "react-iconly": "^2.2.5"
+    "react-iconly": "^2.2.5",
+    "react-icons": "^4.3.1"
   }
 }
