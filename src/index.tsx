@@ -1,8 +1,10 @@
 import React from 'react';
 import {
   Button,
+  Card,
+  Divider,
   Input,
-  Modal,
+  Row,
   Spacer,
   Text,
   Textarea,
@@ -19,46 +21,30 @@ import { Send } from 'react-iconly';
  * A custom Thing component. Neat!
  */
 export const Thing = () => {
-  const [visible, setVisible] = React.useState(false);
-  const handler = () => setVisible(true);
-  const closeHandler = () => {
-    setVisible(false);
-    console.log('closed');
-  };
   return (
-    <div>
-      <Button onClick={handler} iconRight={<Send set="bulk" />} color="success">
-        NFToupon
-      </Button>
-      <Modal
-        closeButton
-        preventClose
-        aria-labelledby="modal-title"
-        open={visible}
-        onClose={closeHandler}
-      >
-        <Modal.Header>
-          <Text id="modal-title" size={18}>
-            NFToupon Generator
-          </Text>
-        </Modal.Header>
-        <Modal.Body>
-          <Spacer y={0.5} />
-          <Input size="md" clearable underlined labelPlaceholder="Title" />
-          <Spacer y={0.5} />
-          <Textarea underlined labelPlaceholder="Description" />
-          <Spacer y={0.5} />
-          <Input clearable underlined type="file" />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button auto bordered color="gradient" onClick={closeHandler}>
-            Close
+    <Card css={{ mw: '330px' }}>
+      <Card.Header css={{ boxSizing: 'inherit' }}>
+        <Text b size={18}>
+          NFToupon Generator
+        </Text>
+      </Card.Header>
+      <Divider />
+      <Card.Body css={{ py: '$10', boxSizing: 'inherit' }}>
+        <Spacer y={0.5} />
+        <Input size="md" clearable underlined labelPlaceholder="Title" />
+        <Spacer y={1.5} />
+        <Textarea underlined labelPlaceholder="Description" />
+        <Spacer y={1.5} />
+        <Input clearable underlined type="file" />
+      </Card.Body>
+      <Divider />
+      <Card.Footer css={{ boxSizing: 'inherit' }}>
+        <Row justify="flex-end">
+          <Button size="sm" iconRight={<Send set="bulk" />} color="success">
+            NFToupon
           </Button>
-          <Button auto onClick={closeHandler} color="success">
-            Upload
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
+        </Row>
+      </Card.Footer>
+    </Card>
   );
 };
