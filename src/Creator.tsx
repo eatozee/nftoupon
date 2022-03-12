@@ -32,13 +32,13 @@ interface CreatorProps {
 }
 interface ResponsePayload {
   payload: {
-    uuid: String;
+    uuid: string;
     refs: {
-      qr_png: String;
-      websocket_status: URL;
+      qr_png: string;
+      websocket_status: string;
     };
   };
-  error: String;
+  error: string;
 }
 
 export const Creator = (props: CreatorProps) => {
