@@ -14,6 +14,7 @@ import {
 } from '@nextui-org/react';
 import { Send } from 'react-iconly';
 import { BiSun, BiMoon } from 'react-icons/bi';
+import isEmpty from 'lodash/isEmpty';
 
 const myDarkTheme = createTheme({
   type: 'dark',
@@ -23,8 +24,58 @@ const lightTheme = createTheme({
   type: 'light',
 });
 
-export const Creator = () => {
+interface CreatorProps {
+  xummConfig: {
+    XUMM_APIKEY: String;
+    XUMM_APISECRET: String;
+  };
+}
+interface ResponsePayload {
+  payload: {
+    uuid: String;
+    refs: {
+      qr_png: String;
+      websocket_status: URL;
+    };
+  };
+  error: String;
+}
+
+export const Creator = (props: CreatorProps) => {
   const [isDark, setIsDark] = React.useState(false);
+  const { xummConfig } = props;
+  const { XUMM_APIKEY, XUMM_APISECRET } = xummConfig;
+
+  const connectWallet = async () => {
+    // just a placeholder will change with the real one
+    try {
+      const response = await fetch('http://localhost:3000/api/payload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          XUMM_APIKEY,
+          XUMM_APISECRET,
+        }),
+      });
+
+      const { payload, error }: ResponsePayload = await response.json();
+      console.log({ payload, error });
+
+      if (!isEmpty(payload)) {
+        const wsURL = payload.refs.websocket_status;
+        const ws = new WebSocket(wsURL);
+        ws.onmessage = (event) => {
+          console.log(event.data);
+        };
+      } else {
+        console.log(error);
+      }
+    } catch (error) {
+      console.log('error ', error);
+    }
+  };
 
   return (
     <NextUIProvider theme={isDark ? myDarkTheme : lightTheme}>
@@ -56,7 +107,12 @@ export const Creator = () => {
         <Divider />
         <Card.Footer>
           <Row justify="flex-end">
-            <Button auto color="error" iconRight={<Send set="bulk" />}>
+            <Button
+              onClick={connectWallet}
+              auto
+              color="error"
+              iconRight={<Send set="bulk" />}
+            >
               NFToupon
             </Button>
           </Row>
