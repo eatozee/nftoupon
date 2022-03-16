@@ -13,6 +13,7 @@ import {
   Avatar,
   Grid,
   Container,
+  Col,
 } from '@nextui-org/react';
 import { Carousel } from '@trendyol-js/react-carousel';
 import { Wallet, ChevronRight, ChevronLeft } from 'react-iconly';
@@ -125,22 +126,20 @@ export const Arbiter = () => {
             maxRows={4}
           />
           <Spacer y={0.5} />
-          <Grid.Container gap={1}>
-            <Grid sm={6} lg={5}>
-              <Input
-                width="100%"
-                required
-                label="Offer"
-                type="number"
-                labelRight="XRP"
-                min={1}
-                initialValue={'1'}
-              />
-            </Grid>
-            <Grid sm={6} lg={7}>
-              <Input width="100%" required label="Date" type="date" />
-            </Grid>
-          </Grid.Container>
+              <Row gap={1}>
+                <Col>
+                  <Input
+                    width="100%"
+                    required
+                    label="Offer"
+                    type="number"
+                    labelRight="XRP"
+                    min={1}
+                    initialValue={'1'}
+                  />
+                </Col>
+                <Col><Input width="100%" required label="Date" type="date" /></Col>
+              </Row>
           <Spacer y={0.8} />
           <Row justify="space-around">
             <Button size="sm" color="success">
