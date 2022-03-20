@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   NextUIProvider,
   Button,
@@ -13,54 +13,99 @@ import {
   Avatar,
   Grid,
   Container,
-  Col,
+  Pagination,
 } from '@nextui-org/react';
-import { Carousel } from '@trendyol-js/react-carousel';
-import { Wallet, ChevronRight, ChevronLeft } from 'react-iconly';
-import { numberLiteralTypeAnnotation } from '@babel/types';
-import { keyBy } from 'lodash';
+import { Wallet } from 'react-iconly';
 export const Arbiter = () => {
   const xummLogo = require('../assets/xumm.svg') as string;
-  const Logo1 = require('../assets/burger.svg') as string;
-  const Logo2 = require('../assets/temp.svg') as string;
-  // We can use image url in creatorDetails.icon later
-  const creatorDetails = [
+  const sampleLogo1 = require('../assets/sampleLogo1.svg') as string;
+  const sampleLogo2 = require('../assets/sampleLogo2.svg') as string;
+
+  let posts: {
+    id: number;
+    title: string;
+    description: string;
+    img: string;
+  }[] = [
     {
-      id: '1',
+      id: 1,
       title: "Creator's Title 1",
       description: "This will replace the creator's Description 1",
-      icon: xummLogo,
+      img: xummLogo,
     },
     {
-      id: '2',
+      id: 2,
       title: "Creator's Title 2",
       description: "This will replace the creator's Description 2",
-      icon: Logo1,
+      img: sampleLogo1,
     },
     {
-      id: '3',
+      id: 3,
       title: "Creator's Title 3",
       description: "This will replace the creator's Description 3",
-      icon: Logo2,
+      img: xummLogo,
     },
     {
-      id: '4',
+      id: 4,
       title: "Creator's Title 4",
       description: "This will replace the creator's Description 4",
-      icon: Logo1,
+      img: sampleLogo2,
+    },
+    {
+      id: 5,
+      title: "Creator's Title 5",
+      description: "This will replace the creator's Description 3",
+      img: xummLogo,
+    },
+    {
+      id: 6,
+      title: "Creator's Title 6",
+      description: "This will replace the creator's Description 3",
+      img: sampleLogo2,
+    },
+    {
+      id: 7,
+      title: "Creator's Title 7",
+      description: "This will replace the creator's Description 3",
+      img: xummLogo,
+    },
+    {
+      id: 8,
+      title: "Creator's Title 8",
+      description: "This will replace the creator's Description 3",
+      img: sampleLogo1,
     },
   ];
 
   const [Details, setDetails] = React.useState({
-    id: '',
+    id: 0,
     title: '',
     description: '',
     icon: '',
   });
+
+  useEffect(() => {
+    setDetails({
+      id: posts[0].id,
+      title: posts[0].title,
+      description: posts[0].description,
+      icon: posts[0].img,
+    });
+  }, []);
+
   const [visible, setVisible] = React.useState(false);
   const handler = () => setVisible(true);
   const closeHandler = () => {
     setVisible(false);
+  };
+
+  //Logic for posts in pagination where '4' is the posts per page
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const indexOfLastPost = currentPage * 4;
+  const indexOfFirstPost = indexOfLastPost - 4;
+  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+  const changePage = (page: number) => {
+    setCurrentPage(page);
   };
   return (
     <NextUIProvider>
@@ -126,20 +171,20 @@ export const Arbiter = () => {
             maxRows={4}
           />
           <Spacer y={0.5} />
-              <Row gap={1}>
-                <Col>
-                  <Input
-                    width="100%"
-                    required
-                    label="Offer"
-                    type="number"
-                    labelRight="XRP"
-                    min={1}
-                    initialValue={'1'}
-                  />
-                </Col>
-                <Col><Input width="100%" required label="Date" type="date" /></Col>
-              </Row>
+          <Grid.Container>
+            <Row>
+              <Input
+                required
+                label="Offer"
+                type="number"
+                labelRight="XRP"
+                min={1}
+                initialValue={'1'}
+              />
+              <Spacer y={0.5} />
+              <Input required label="Date" type="date" />
+            </Row>
+          </Grid.Container>
           <Spacer y={0.8} />
           <Row justify="space-around">
             <Button size="sm" color="success">
@@ -152,36 +197,39 @@ export const Arbiter = () => {
         </Card.Body>
         <Divider />
         <Spacer y={0.5} />
-        <Grid.Container gap={2} justify="center">
-          <Carousel
-            show={3}
-            swiping={true}
-            responsive={true}
-            slide={1}
-            rightArrow={<ChevronRight set="two-tone" />}
-            leftArrow={<ChevronLeft set="two-tone" />}
-          >
-            {creatorDetails.map((creatorDetail) => (
-              <Grid key={creatorDetail.id} lg={4}>
+        <Grid.Container gap={2} justify="center" css={{ pl: '18px' }}>
+          <Row justify="center">
+            {currentPosts.map((post) => (
+              <Grid key={post.id} lg={4}>
                 <Avatar
                   zoomed
                   pointer
                   squared
-                  key={creatorDetail.id}
+                  key={post.id}
                   onClick={() =>
                     setDetails({
-                      id: creatorDetail.id,
-                      title: creatorDetail.title,
-                      description: creatorDetail.description,
-                      icon: creatorDetail.icon,
+                      id: post.id,
+                      title: post.title,
+                      description: post.description,
+                      icon: post.img,
                     })
                   }
                   size="xl"
-                  src={creatorDetail.icon}
+                  src={post.img}
                 />
               </Grid>
             ))}
-          </Carousel>
+          </Row>
+          <Row justify="center">
+            <Pagination
+              rounded
+              onlyDots
+              total={Math.ceil(posts.length / 4)}
+              size={'xs'}
+              css={{ pb: '10px' }}
+              onChange={changePage}
+            />
+          </Row>
         </Grid.Container>
         <Divider />
         <Card.Footer css={{ justifyContent: 'center' }}>
