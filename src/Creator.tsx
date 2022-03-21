@@ -13,16 +13,10 @@ import {
   Avatar,
   Grid,
   Container,
+  Pagination,
 } from '@nextui-org/react';
 import isEmpty from 'lodash/isEmpty';
-import {
-  ChevronLeftCircle,
-  ChevronRightCircle,
-  Send,
-  Wallet,
-  CloseSquare,
-} from 'react-iconly';
-import { Carousel } from '@trendyol-js/react-carousel';
+import { Send, Wallet, ChevronLeft } from 'react-iconly';
 
 interface ResponsePayload {
   payload: {
@@ -40,46 +34,90 @@ export const Creator = (props: CreatorProps) => {
   const closeHandler = () => setVisible(false);
   const { xummConfig } = props;
   const { XUMM_APIKEY, XUMM_APISECRET } = xummConfig;
-  const creatorDetails = [
+  let posts: {
+    id: number;
+    title: string;
+    description: string;
+    img: string;
+    status: string;
+  }[] = [
     {
-      id: '1',
+      id: 1,
       title: "Creator's Title 1",
       description: "This will replace the creator's Description 1",
       img: xummLogo,
       status: 'error',
     },
     {
-      id: '2',
+      id: 2,
       title: "Creator's Title 2",
       description: "This will replace the creator's Description 2",
       img: xummLogo,
       status: 'warning',
     },
     {
-      id: '3',
+      id: 3,
       title: "Creator's Title 3",
       description: "This will replace the creator's Description 3",
       img: xummLogo,
       status: 'success',
     },
     {
-      id: '4',
-      title: "Creator's Title 3",
+      id: 4,
+      title: "Creator's Title 4",
+      description: "This will replace the creator's Description 4",
+      img: xummLogo,
+      status: 'error',
+    },
+    {
+      id: 5,
+      title: "Creator's Title 5",
+      description: "This will replace the creator's Description 3",
+      img: xummLogo,
+      status: 'error',
+    },
+    {
+      id: 6,
+      title: "Creator's Title 6",
+      description: "This will replace the creator's Description 3",
+      img: xummLogo,
+      status: 'error',
+    },
+    {
+      id: 7,
+      title: "Creator's Title 7",
+      description: "This will replace the creator's Description 3",
+      img: xummLogo,
+      status: 'error',
+    },
+    {
+      id: 8,
+      title: "Creator's Title 8",
       description: "This will replace the creator's Description 3",
       img: xummLogo,
       status: 'error',
     },
   ];
+  //Logic for posts in pagination where '4' is the posts per page
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const indexOfLastPost = currentPage * 2;
+  const indexOfFirstPost = indexOfLastPost - 2;
+  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+  const changePage = (page: number) => {
+    setCurrentPage(page);
+  };
 
-  const [buttonVisible, setButtonVisible] = React.useState(false);
-  const [showDetail, setShowDetail] = React.useState({
-    id: '',
+  const [Details, setDetails] = React.useState({
+    id: 0,
     title: '',
     description: '',
     img: '',
     status: '',
     visibilty: false,
   });
+
+
+
   const connectWallet = async () => {
     // just a placeholder will change with the real one
     try {
@@ -113,15 +151,46 @@ export const Creator = (props: CreatorProps) => {
       <Card css={{ mw: '400px', mh: '650px' }}>
         <Card.Header>
           <Row justify="space-between" align="center">
-            <Text
-              css={{
-                textGradient: '45deg, $blue500 -20%, $pink500 50%',
-              }}
-              b
-              size={18}
-            >
-              Counter
-            </Text>
+            {Details.visibilty ? (
+              <Button
+                auto
+                size={'sm'}
+                onClick={() =>
+                  setDetails({
+                    id: 0,
+                    title: '',
+                    description: '',
+                    img: '',
+                    status: '',
+                    visibilty: false,
+                  })
+                }
+                light
+                icon={<ChevronLeft set="light" />}
+              />
+            ) : null}
+            {Details.visibilty ? (
+              <Text
+                css={{
+                  textGradient: '45deg, $blue500 -20%, $pink500 10%',
+                  pl: '228px',
+                }}
+                b
+                size={18}
+              >
+                20k
+              </Text>
+            ) : (
+              <Text
+                css={{
+                  textGradient: '45deg, $blue500 -20%, $pink500 10%',
+                }}
+                b
+                size={18}
+              >
+                20k
+              </Text>
+            )}
             <Button
               auto
               css={{ pr: '7px' }}
@@ -152,29 +221,12 @@ export const Creator = (props: CreatorProps) => {
         </Card.Header>
         <Divider />
         <Card.Body css={{ py: '$10' }}>
-          {showDetail.visibilty ? (
+          {Details.visibilty ? (
             <>
-            <Row justify='flex-end' css={{pb: '$12'}}>
-              <Button
-                auto
-                size={'md'}
-                onClick={() => setShowDetail(
-                  {    
-                  id: '',
-                  title: '',
-                  description: '',
-                  img: '',
-                  status: '',
-                  visibilty: false,}
-                )}
-                light
-                icon={<CloseSquare set="bulk" filled />}
-              />
-              </Row>
-              <Container display="flex" justify="center" fluid> 
+              <Container display="flex" justify="center" fluid>
                 <img
                   height="180px"
-                  src={showDetail.img}
+                  src={Details.img}
                   alt="Creator's NFT image"
                 />
               </Container>
@@ -183,20 +235,20 @@ export const Creator = (props: CreatorProps) => {
                 readOnly
                 width="100%"
                 label="Title"
-                initialValue={showDetail.title}
+                initialValue={Details.title}
               />
               <Spacer y={0.5} />
               <Textarea
                 readOnly
                 width="100%"
                 label="Description"
-                initialValue={showDetail.description}
+                initialValue={Details.description}
                 maxRows={4}
               />
               <Spacer y={0.5} />
               <Grid.Container>
                 <Row>
-                <Input
+                  <Input
                     readOnly
                     width="100%"
                     required
@@ -207,7 +259,7 @@ export const Creator = (props: CreatorProps) => {
                     initialValue={'1'}
                   />
                   <Spacer y={0.5} />
-                  <Input readOnly width="100%" required label="Date"  />
+                  <Input readOnly width="100%" required label="Date" />
                 </Row>
               </Grid.Container>
               <Spacer y={0.8} />
@@ -242,94 +294,60 @@ export const Creator = (props: CreatorProps) => {
             </>
           )}
         </Card.Body>
-
+       
+      
         {Details.visibilty ? null : (
           <>
-            <Divider />
-            <Spacer y={0.5} />
-            <Grid.Container gap={1} justify="center">
-              <Row justify="center">
-                {currentPosts.map((post) => (
-                  <Grid key={post.id} lg={3}>
-                    <Avatar
-                      zoomed
-                      pointer
-                      squared
-                      key={post.id}
-                      onClick={() =>
-                        setDetails({
-                          id: post.id,
-                          title: post.title,
-                          description: post.description,
-                          img: post.img,
-                          visibilty: true,
-                        })
-                      }
-                      bordered
-                      color="success"
-                      size="xl"
-                      src={post.img}
-                    />
-                  </Grid>
-                ))}
-              </Row>
-
-              <Row justify="center">
-                <Pagination
-                  rounded
-                  onlyDots
-                  total={Math.ceil(refs.data.length / 4)}
-                  size={'xs'}
-                  css={{ pb: '10px' }}
-                  onChange={changePage}
-                />
-              </Row>
-            </Grid.Container>
-          </>
-        )}
-
-        <Divider />
-        <Spacer y={0.5} />
-        <Grid.Container gap={2} justify="center">
-          <Carousel
-            show={3}
-            swiping={true}
-            responsive={true}
-            slide={1}
-            rightArrow={<ChevronRightCircle set="two-tone" />}
-            leftArrow={<ChevronLeftCircle set="two-tone" />}
-          >
-            {creatorDetails.map((creatorDetail) => (
-              <Grid key={creatorDetail.id} lg={4}>
+           <Divider />
+           <Spacer y={0.5} />
+          <Grid.Container gap={2} justify="center">
+          <Row justify="center">
+            {currentPosts.map((post) => (
+              <Grid key={post.id} lg={3} css={{ pl: '18px' }}>
                 <Avatar
                   zoomed
                   pointer
-                  size="xl"
+                  squared
+                  key={post.id}
                   onClick={() =>
-                    setShowDetail({
-                      id: creatorDetail.id,
-                      title: creatorDetail.title,
-                      description: creatorDetail.description,
-                      img: creatorDetail.img,
-                      status: creatorDetail.status,
+                    setDetails({
+                      id: post.id,
+                      title: post.title,
+                      description: post.description,
+                      img: post.img,
+                      status: post.status,
                       visibilty: true,
                     })
                   }
-                  src={creatorDetail.img}
-                  color={creatorDetail.status}
                   bordered
-                  squared
+                  color={post.status}
+                  size="xl"
+                  src={post.img}
                 />
               </Grid>
             ))}
-          </Carousel>
-        </Grid.Container>
+          </Row>
+        
+            <Row justify="center">
+              <Pagination
+                rounded
+                onlyDots
+                total={Math.ceil(posts.length / 2)}
+                size={'xs'}
+                css={{ pb: '10px' }}
+                onChange={changePage}
+              />
+            </Row>
+            </Grid.Container>
+            </>
+          
+          )}
+        
         <Divider />
         <Card.Footer css={{ justifyContent: 'center' }}>
-          <Text>
-            © {`${new Date().getFullYear()}`} eatozee. All rights reserved
-          </Text>
+          <Text>© {`${new Date().getFullYear()}`} eatozee.</Text>
         </Card.Footer>
+        
       </Card>
     </NextUIProvider>
   );
