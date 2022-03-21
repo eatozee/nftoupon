@@ -100,8 +100,8 @@ export const Creator = (props: CreatorProps) => {
   ];
   //Logic for posts in pagination where '4' is the posts per page
   const [currentPage, setCurrentPage] = React.useState(1);
-  const indexOfLastPost = currentPage * 2;
-  const indexOfFirstPost = indexOfLastPost - 2;
+  const indexOfLastPost = currentPage * 4;
+  const indexOfFirstPost = indexOfLastPost - 4;
   const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
   const changePage = (page: number) => {
     setCurrentPage(page);
@@ -332,7 +332,7 @@ export const Creator = (props: CreatorProps) => {
               <Pagination
                 rounded
                 onlyDots
-                total={Math.ceil(posts.length / 2)}
+                total={Math.ceil(posts.length / 4)}
                 size={'xs'}
                 css={{ pb: '10px' }}
                 onChange={changePage}
