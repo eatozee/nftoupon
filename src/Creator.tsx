@@ -14,6 +14,7 @@ import {
   Grid,
   Container,
   Pagination,
+  Col,
 } from '@nextui-org/react';
 import isEmpty from 'lodash/isEmpty';
 import { Send, Wallet, ChevronLeft } from 'react-iconly';
@@ -116,8 +117,6 @@ export const Creator = (props: CreatorProps) => {
     visibilty: false,
   });
 
-
-
   const connectWallet = async () => {
     // just a placeholder will change with the real one
     try {
@@ -148,13 +147,14 @@ export const Creator = (props: CreatorProps) => {
   };
   return (
     <NextUIProvider>
-      <Card css={{ mw: '400px', mh: '650px' }}>
+      <Card css={{ mw: '300px', mh: '650px' }}>
         <Card.Header>
           <Row justify="space-between" align="center">
             {Details.visibilty ? (
               <Button
                 auto
                 size={'sm'}
+                css={{ height: '40px', pl: '0px' }}
                 onClick={() =>
                   setDetails({
                     id: 0,
@@ -169,36 +169,29 @@ export const Creator = (props: CreatorProps) => {
                 icon={<ChevronLeft set="light" />}
               />
             ) : null}
-            {Details.visibilty ? (
-              <Text
-                css={{
-                  textGradient: '45deg, $blue500 -20%, $pink500 10%',
-                  pl: '228px',
-                }}
-                b
-                size={18}
-              >
-                20k
-              </Text>
-            ) : (
-              <Text
-                css={{
-                  textGradient: '45deg, $blue500 -20%, $pink500 10%',
-                }}
-                b
-                size={18}
-              >
-                20k
-              </Text>
-            )}
-            <Button
-              auto
-              css={{ pr: '7px' }}
-              light
-              color="primary"
-              onClick={handler}
-              icon={<Wallet />}
-            />
+            
+              <Row align="center" gap={0} justify='flex-end'>
+                
+                  <Text
+                    css={{
+                      textGradient: '45deg, $blue500 -20%, $pink500 10%',
+                    }}
+                    b
+                    size={18}
+                  >
+                    20k
+                  </Text>
+                
+                  <Button
+                    auto
+                    css={{ pr: '7px', pl: '10px' }}
+                    light
+                    color="primary"
+                    onClick={connectWallet}
+                    icon={<Wallet />}
+                  />
+               
+              </Row>
             <Modal
               closeButton
               aria-labelledby="modal-title"
@@ -264,11 +257,11 @@ export const Creator = (props: CreatorProps) => {
               </Grid.Container>
               <Spacer y={0.8} />
               <Row justify="space-around">
-                <Button size="sm" color="success">
+                <Button size="xs" color="success" css={{ height: '40px' }}>
                   Generate NFToupon
                 </Button>
                 <Spacer y={0.5} />
-                <Button size="sm" color="error">
+                <Button size="xs" color="error" css={{ height: '40px' }}>
                   Reject
                 </Button>
               </Row>
@@ -283,71 +276,64 @@ export const Creator = (props: CreatorProps) => {
               <Input underlined clearable type="file" />
               <Spacer y={1.5} />
               <Row justify="flex-end">
-                <Button
-                  auto
-                  iconRight={<Send set="bulk" />}
-                  onClick={connectWallet}
-                >
+                <Button auto iconRight={<Send set="bulk" />}>
                   Send
                 </Button>
               </Row>
             </>
           )}
         </Card.Body>
-       
-      
+
         {Details.visibilty ? null : (
           <>
-           <Divider />
-           <Spacer y={0.5} />
-          <Grid.Container gap={2} justify="center">
-          <Row justify="center">
-            {currentPosts.map((post) => (
-              <Grid key={post.id} lg={3} css={{ pl: '18px' }}>
-                <Avatar
-                  zoomed
-                  pointer
-                  squared
-                  key={post.id}
-                  onClick={() =>
-                    setDetails({
-                      id: post.id,
-                      title: post.title,
-                      description: post.description,
-                      img: post.img,
-                      status: post.status,
-                      visibilty: true,
-                    })
-                  }
-                  bordered
-                  color={post.status}
-                  size="xl"
-                  src={post.img}
+            <Divider />
+            <Spacer y={0.5} />
+            <Grid.Container gap={1} justify="center">
+              <Row justify="center">
+                {currentPosts.map((post) => (
+                  <Grid key={post.id} lg={3}>
+                    <Avatar
+                      zoomed
+                      pointer
+                      squared
+                      key={post.id}
+                      onClick={() =>
+                        setDetails({
+                          id: post.id,
+                          title: post.title,
+                          description: post.description,
+                          img: post.img,
+                          status: post.status,
+                          visibilty: true,
+                        })
+                      }
+                      bordered
+                      color={post.status}
+                      size="xl"
+                      src={post.img}
+                    />
+                  </Grid>
+                ))}
+              </Row>
+
+              <Row justify="center">
+                <Pagination
+                  rounded
+                  onlyDots
+                  total={Math.ceil(posts.length / 4)}
+                  size={'xs'}
+                  css={{ pb: '10px' }}
+                  onChange={changePage}
                 />
-              </Grid>
-            ))}
-          </Row>
-        
-            <Row justify="center">
-              <Pagination
-                rounded
-                onlyDots
-                total={Math.ceil(posts.length / 4)}
-                size={'xs'}
-                css={{ pb: '10px' }}
-                onChange={changePage}
-              />
-            </Row>
+              </Row>
             </Grid.Container>
-            </>
-          
-          )}
-        
+          </>
+        )}
+
         <Divider />
         <Card.Footer css={{ justifyContent: 'center' }}>
           <Text>© {`${new Date().getFullYear()}`} eatozee.</Text>
         </Card.Footer>
-        
       </Card>
     </NextUIProvider>
   );
