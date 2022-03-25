@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   NextUIProvider,
   Button,
@@ -9,30 +9,32 @@ import {
   Spacer,
   Text,
   Textarea,
-  Modal,
   Avatar,
   Grid,
   Container,
   Pagination,
-  Col,
 } from '@nextui-org/react';
 import isEmpty from 'lodash/isEmpty';
-import { Send, Wallet, ChevronLeft } from 'react-iconly';
+import { Send, ChevronLeft } from 'react-iconly';
+import { CardHeader } from './components/CardHeader';
+
+interface CreatorProps {
+  xummConfig: {
+    XUMM_APIKEY: String;
+    XUMM_APISECRET: String;
+  };
+}
 
 interface ResponsePayload {
-  payload: {
-    uuid: string;
-    refs: {
-      qr_png: string;
-      websocket_status: string;
-    };
+  uuid: string;
+  refs: {
+    qr_png: string;
+    websocket_status: string;
   };
-  error: string;
 }
 export const Creator = (props: CreatorProps) => {
   const xummLogo = require('../assets/xumm.svg') as string;
   const [visible, setVisible] = React.useState(false);
-  const handler = () => setVisible(true);
   const closeHandler = () => setVisible(false);
   const { xummConfig } = props;
   const { XUMM_APIKEY, XUMM_APISECRET } = xummConfig;
@@ -47,21 +49,21 @@ export const Creator = (props: CreatorProps) => {
       id: 1,
       title: "Creator's Title 1",
       description: "This will replace the creator's Description 1",
-      img: xummLogo,
+      img: 'https://ipfs.io/ipfs/bafkreif265ttbl74nraasybb4hgmaedb6zrqfl2ikms52p4go4ry3f3k5i',
       status: 'error',
     },
     {
       id: 2,
       title: "Creator's Title 2",
       description: "This will replace the creator's Description 2",
-      img: xummLogo,
+      img: 'https://ipfs.io/ipfs/bafkreiavd46byllzmkgdhakfgu635nqffzwsavrd4qmgxnvomfz556chvi',
       status: 'warning',
     },
     {
       id: 3,
       title: "Creator's Title 3",
       description: "This will replace the creator's Description 3",
-      img: xummLogo,
+      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
       status: 'success',
     },
     {
@@ -117,35 +119,97 @@ export const Creator = (props: CreatorProps) => {
     status: '',
     visibilty: false,
   });
+  const [xummPayload, setXummPayload] =
+    React.useState<ResponsePayload | null>(null);
+  const [xummStatus, setXummStatus] = React.useState('idle');
+  const [transactionType, setTransactionType] = React.useState('');
+  const [walletAddress, setWalletAddress] = React.useState({
+    profileWalletAddress: '',
+    connectedWalletAddress: '',
+  });
 
   const connectWallet = async () => {
     // just a placeholder will change with the real one
     try {
-      const response = await fetch('http://localhost:3000/api/payload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          XUMM_APIKEY: '',
-          XUMM_APISECRET: '',
-        }),
-      });
-      const { payload, error }: ResponsePayload = await response.json();
-      console.log({ payload, error });
+      const response = await fetch(
+        `https://eatozee-crypto.app/api/nftoupon/connect`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          },
+          body: JSON.stringify({
+            XUMM_APIKEY: '9d8fe7cf-bff0-46f3-87fc-a8c4642f4d46',
+            XUMM_APISECRET: 'fdefb301-2849-4406-b856-5f27cbb93987',
+          }),
+        }
+      );
+      const { payload } = await response.json();
+
       if (!isEmpty(payload)) {
-        const wsURL = payload.refs.websocket_status;
-        const ws = new WebSocket(wsURL);
-        ws.onmessage = (event) => {
-          console.log(event.data);
-        };
+        // ws.onmessage = (event) => {
+        //   console.log(event.data);
+        // };
+        setXummPayload(payload);
+        setVisible(true);
       } else {
-        console.log(error);
+        setXummPayload(null);
       }
     } catch (error) {
       console.log('error ', error);
     }
   };
+
+  const closeSocket = (ws: WebSocket) => {
+    ws.close();
+    setXummPayload(null);
+    setVisible(false);
+  };
+
+  useEffect(() => {
+    if (!isEmpty(xummPayload)) {
+      const wsURL = xummPayload?.refs?.websocket_status;
+      const ws = new WebSocket(wsURL || '');
+      ws.onmessage = (event) => {
+        const { opened, payload_uuidv4, signed, expired } = JSON.parse(
+          event.data
+        );
+        console.log(event.data);
+        if (opened) {
+          setXummStatus('connected');
+        } else if (expired) {
+          setXummStatus('expired');
+          closeSocket(ws);
+        } else if (!isEmpty(payload_uuidv4) && !signed) {
+          setXummStatus('declined');
+          closeSocket(ws);
+        } else if (signed) {
+          setXummStatus('verifying');
+
+          fetch(`https://eatozee-crypto.app/api/nftoupon/payload`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              XUMM_APIKEY,
+              XUMM_APISECRET,
+              payload_uuidv4,
+            }),
+          })
+            .then((res) => res.json())
+            .then((json) => {
+              setXummStatus('idle');
+              setWalletAddress(json.payload);
+              setTransactionType(json.tx_type);
+              closeSocket(ws);
+            })
+            .catch((err) => console.error('error:' + err));
+        }
+      };
+    }
+  });
   return (
     <NextUIProvider>
       <Card css={{ mw: '300px', mh: '650px' }}>
@@ -170,47 +234,13 @@ export const Creator = (props: CreatorProps) => {
                 icon={<ChevronLeft set="light" />}
               />
             ) : null}
-            
-              <Row align="center" gap={0} justify='flex-end'>
-                
-                  <Text
-                    css={{
-                      textGradient: '45deg, $blue500 -20%, $pink500 10%',
-                    }}
-                    b
-                    size={18}
-                  >
-                    20k
-                  </Text>
-                
-                  <Button
-                    auto
-                    css={{ pr: '7px', pl: '10px' }}
-                    light
-                    color="primary"
-                    onClick={connectWallet}
-                    icon={<Wallet />}
-                  />
-               
-              </Row>
-            <Modal
-              closeButton
-              aria-labelledby="modal-title"
-              open={visible}
-              onClose={closeHandler}
-            >
-              <Modal.Header>
-                <Text id="wallet-title" size={18}>
-                  Scan the QR Code
-                </Text>
-              </Modal.Header>
-              <Modal.Body>{/* Paste QR code link Here */}</Modal.Body>
-              <Modal.Footer>
-                <Button auto flat color="primary" onClick={closeHandler}>
-                  Close
-                </Button>
-              </Modal.Footer>
-            </Modal>
+
+            <CardHeader
+              closeHandler={closeHandler}
+              visible={visible}
+              connectWallet={connectWallet}
+              xummPayload={xummPayload} /> 
+
           </Row>
         </Card.Header>
         <Divider />

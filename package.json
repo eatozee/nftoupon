@@ -74,6 +74,7 @@
     "@nextui-org/react": "^1.0.2-beta.4",
     "@trendyol-js/react-carousel": "^2.0.1",
     "react-iconly": "^2.2.5",
-    "react-icons": "^4.3.1"
+    "react-icons": "^4.3.1",
+    "react-use-disclosure": "^4.0.0"
   }
 }
