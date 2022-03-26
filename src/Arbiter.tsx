@@ -4,76 +4,86 @@ import {
   Button,
   Card,
   Divider,
-  Input,
   Row,
   Spacer,
   Text,
-  Textarea,
   Modal,
-  Avatar,
   Grid,
-  Container,
   Pagination,
+  Avatar,
 } from '@nextui-org/react';
 import { Wallet } from 'react-iconly';
-export const Arbiter = () => {
-  const xummLogo = require('../assets/xumm.svg') as string;
-  const sampleLogo1 = require('../assets/sampleLogo1.svg') as string;
-  const sampleLogo2 = require('../assets/sampleLogo2.svg') as string;
+import { CouponDetails } from './components/CouponDetails';
 
-  let posts: {
+type prop = {
+  data: {
     id: number;
     title: string;
     description: string;
     img: string;
-  }[] = [
+    status: string;
+  }[];
+  NFToupon_Key: string;
+};
+export const Arbiter = ({ data, NFToupon_Key }: prop) => {
+  //JUST THE HARDCODED VALUE OF data, NFToupon_Key, acceptHandler and rejectHandler we can take if from the one who is using this plugin
+  NFToupon_Key = 'Accepted';
+  data = [
     {
       id: 1,
       title: "Creator's Title 1",
       description: "This will replace the creator's Description 1",
-      img: xummLogo,
+      img: 'https://ipfs.io/ipfs/bafkreif265ttbl74nraasybb4hgmaedb6zrqfl2ikms52p4go4ry3f3k5i',
+      status: '',
     },
     {
       id: 2,
       title: "Creator's Title 2",
       description: "This will replace the creator's Description 2",
-      img: sampleLogo1,
+      img: 'https://ipfs.io/ipfs/bafkreiavd46byllzmkgdhakfgu635nqffzwsavrd4qmgxnvomfz556chvi',
+      status: '',
     },
     {
       id: 3,
       title: "Creator's Title 3",
       description: "This will replace the creator's Description 3",
-      img: xummLogo,
+      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
+      status: '',
     },
     {
       id: 4,
       title: "Creator's Title 4",
       description: "This will replace the creator's Description 4",
-      img: sampleLogo2,
+      img: 'https://ipfs.io/ipfs/bafkreif265ttbl74nraasybb4hgmaedb6zrqfl2ikms52p4go4ry3f3k5i',
+      status: '',
     },
     {
       id: 5,
       title: "Creator's Title 5",
       description: "This will replace the creator's Description 3",
-      img: xummLogo,
+      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
+      status: '',
     },
     {
       id: 6,
       title: "Creator's Title 6",
       description: "This will replace the creator's Description 3",
-      img: sampleLogo2,
+      img: 'https://ipfs.io/ipfs/bafkreiavd46byllzmkgdhakfgu635nqffzwsavrd4qmgxnvomfz556chvi',
+      status: '',
     },
     {
       id: 7,
       title: "Creator's Title 7",
       description: "This will replace the creator's Description 3",
-      img: xummLogo,
+      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
+      status: '',
     },
     {
       id: 8,
       title: "Creator's Title 8",
       description: "This will replace the creator's Description 3",
-      img: sampleLogo1,
+      img: 'https://ipfs.io/ipfs/bafkreif265ttbl74nraasybb4hgmaedb6zrqfl2ikms52p4go4ry3f3k5i',
+      status: '',
     },
   ];
 
@@ -81,15 +91,17 @@ export const Arbiter = () => {
     id: 0,
     title: '',
     description: '',
-    icon: '',
+    img: '',
+    status: '',
   });
 
   useEffect(() => {
     setDetails({
-      id: posts[0].id,
-      title: posts[0].title,
-      description: posts[0].description,
-      icon: posts[0].img,
+      id: data[0].id,
+      title: data[0].title,
+      description: data[0].description,
+      img: data[0].img,
+      status: data[0].status,
     });
   }, []);
 
@@ -99,35 +111,39 @@ export const Arbiter = () => {
     setVisible(false);
   };
 
-  //Logic for posts in pagination where '4' is the posts per page
+  //Logic for data in pagination where '4' is the data per page
   const [currentPage, setCurrentPage] = React.useState(1);
   const indexOfLastPost = currentPage * 4;
   const indexOfFirstPost = indexOfLastPost - 4;
-  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
   const changePage = (page: number) => {
     setCurrentPage(page);
   };
+
   return (
     <NextUIProvider>
-      <Card css={{ mw: '400px', mh: '650px' }}>
+      <Card css={{ mw: '330px', mh: '650px' }}>
         <Card.Header>
           <Row align="center" justify="space-between">
-            <Text
-              css={{
-                textGradient: '45deg, $blue500 -20%, $pink500 50%',
-              }}
-              b
-              size={18}
-            >
-              Counter
-            </Text>
-            <Button
-              auto
-              light
-              color="primary"
-              onClick={handler}
-              icon={<Wallet />}
-            />
+            <Row align="center" gap={0} justify="flex-end">
+              <Text
+                css={{
+                  textGradient: '45deg, $blue500 -20%, $pink500 50%',
+                }}
+                b
+                size={18}
+              >
+                20k
+              </Text>
+              <Button
+                auto
+                light
+                color="primary"
+                onClick={handler}
+                css={{ pr: '7px', pl: '10px' }}
+                icon={<Wallet />}
+              />
+            </Row>
 
             <Modal
               closeButton
@@ -151,56 +167,26 @@ export const Arbiter = () => {
         </Card.Header>
         <Divider />
         <Card.Body css={{ py: '$10', alignItems: 'center' }}>
-          <Container display="flex" justify="center" fluid>
-            <img height="180px" src={Details.icon} alt="Creator's NFT image" />
-          </Container>
-
-          <Spacer y={0.5} />
-          <Input
-            readOnly
-            width="100%"
-            label="Title"
-            initialValue={Details.title}
+          {/* Coupon Details for Arbiter */}
+          <CouponDetails
+            id={Details.id}
+            description={Details.description}
+            image={Details.img}
+            title={Details.title}
+            status={Details.status}
+            onClick={(Details) => {
+              console.log(Details);
+            }}
+            acceptBtnText="Accept"
           />
-          <Spacer y={0.5} />
-          <Textarea
-            readOnly
-            width="100%"
-            label="Description"
-            initialValue={Details.description}
-            maxRows={4}
-          />
-          <Spacer y={0.5} />
-          <Grid.Container>
-            <Row>
-              <Input
-                required
-                label="Offer"
-                type="number"
-                labelRight="XRP"
-                min={1}
-                initialValue={'1'}
-              />
-              <Spacer y={0.5} />
-              <Input required label="Date" type="date" />
-            </Row>
-          </Grid.Container>
-          <Spacer y={0.8} />
-          <Row justify="space-around">
-            <Button size="sm" color="success">
-              Accept
-            </Button>
-            <Button size="sm" color="error">
-              Decline
-            </Button>
-          </Row>
         </Card.Body>
         <Divider />
         <Spacer y={0.5} />
-        <Grid.Container gap={2} justify="center" css={{ pl: '18px' }}>
+        <Grid.Container gap={1} justify="center">
+          {/* Avatars section */}
           <Row justify="center">
             {currentPosts.map((post) => (
-              <Grid key={post.id} lg={4}>
+              <Grid key={post.id} lg={3}>
                 <Avatar
                   zoomed
                   pointer
@@ -211,7 +197,8 @@ export const Arbiter = () => {
                       id: post.id,
                       title: post.title,
                       description: post.description,
-                      icon: post.img,
+                      img: post.img,
+                      status: post.status,
                     })
                   }
                   size="xl"
@@ -220,11 +207,12 @@ export const Arbiter = () => {
               </Grid>
             ))}
           </Row>
+          <Spacer y={0.5} />
           <Row justify="center">
             <Pagination
               rounded
               onlyDots
-              total={Math.ceil(posts.length / 4)}
+              total={Math.ceil(data.length / 4)}
               size={'xs'}
               css={{ pb: '10px' }}
               onChange={changePage}
@@ -233,9 +221,7 @@ export const Arbiter = () => {
         </Grid.Container>
         <Divider />
         <Card.Footer css={{ justifyContent: 'center' }}>
-          <Text>
-            © {`${new Date().getFullYear()}`} eatozee. All rights reserved
-          </Text>
+          <Text>© {`${new Date().getFullYear()}`} eatozee</Text>
         </Card.Footer>
       </Card>
     </NextUIProvider>
