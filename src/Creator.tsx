@@ -31,6 +31,10 @@ interface ResponsePayload {
     websocket_status: string;
   };
 }
+type CreatorInput= {
+  title: string;
+  description: string;
+}
 
 
 
@@ -41,6 +45,8 @@ export const Creator = (props: CreatorProps) => {
   const { XUMM_APIKEY, XUMM_APISECRET } = xummConfig;
  
   const [src, setSrc] = React.useState<any>(''); // initial src will be empty
+  const [inputValue, setInputValue] = React.useState<string>(""); //storing title input
+  const [textAreaValue, setTextAreaValue] = React.useState<string>(""); //storing description input
 
   const uploadFile = (event: any) => {
  
@@ -143,6 +149,8 @@ export const Creator = (props: CreatorProps) => {
     connectedWalletAddress: '',
   });
   const [sendButtonDisabled, setSendButtonDisabled] = React.useState(true);
+
+
 
   const connectWallet = async () => {
     // just a placeholder will change with the real one
@@ -311,9 +319,14 @@ export const Creator = (props: CreatorProps) => {
           ) : (
             <>
               <Spacer y={0.5} />
-              <Input size="md" clearable labelPlaceholder="Title" />
+              <Input size="md" clearable labelPlaceholder="Title" type="text" value={inputValue} onChange={(
+                ev: React.ChangeEvent<HTMLInputElement>,
+            ): void => setInputValue(ev.target.value)} />
               <Spacer y={1.5} />
-              <Textarea labelPlaceholder="Description" />
+              <Textarea labelPlaceholder="Description" value={textAreaValue}
+              onChange={(
+                ev: React.ChangeEvent<HTMLTextAreaElement>,
+            ): void => setTextAreaValue(ev.target.value)} />
               <Spacer y={1.5} />
               <Input underlined clearable type="file" name="uploadFile" onChange={(event) => uploadFile(event)}/>
               <Spacer y={1.5} />
@@ -387,7 +400,6 @@ export const Creator = (props: CreatorProps) => {
     </NextUIProvider>
   );
 };
-function useState(arg0: string): [any, any] {
-  throw new Error('Function not implemented.');
-}
+
+
 
