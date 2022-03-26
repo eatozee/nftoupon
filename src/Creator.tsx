@@ -32,81 +32,74 @@ interface ResponsePayload {
     websocket_status: string;
   };
 }
-export const Creator = (props: CreatorProps) => {
+
+type prop = {
+  data: { id: number; title: string; description: string; img: string }[];
+  XUMM_APIKEY: String;
+};
+
+export const Creator = (props: CreatorProps, refs : prop) => {
   const xummLogo = require('../assets/xumm.svg') as string;
   const [visible, setVisible] = React.useState(false);
   const closeHandler = () => setVisible(false);
   const { xummConfig } = props;
   const { XUMM_APIKEY, XUMM_APISECRET } = xummConfig;
-  let posts: {
-    id: number;
-    title: string;
-    description: string;
-    img: string;
-    status: string;
-  }[] = [
+  
+  refs.data = [
     {
       id: 1,
       title: "Creator's Title 1",
       description: "This will replace the creator's Description 1",
       img: 'https://ipfs.io/ipfs/bafkreif265ttbl74nraasybb4hgmaedb6zrqfl2ikms52p4go4ry3f3k5i',
-      status: 'error',
     },
     {
       id: 2,
       title: "Creator's Title 2",
       description: "This will replace the creator's Description 2",
       img: 'https://ipfs.io/ipfs/bafkreiavd46byllzmkgdhakfgu635nqffzwsavrd4qmgxnvomfz556chvi',
-      status: 'warning',
     },
     {
       id: 3,
       title: "Creator's Title 3",
       description: "This will replace the creator's Description 3",
       img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
-      status: 'success',
     },
     {
       id: 4,
       title: "Creator's Title 4",
       description: "This will replace the creator's Description 4",
-      img: xummLogo,
-      status: 'error',
+      img: 'https://ipfs.io/ipfs/bafkreif265ttbl74nraasybb4hgmaedb6zrqfl2ikms52p4go4ry3f3k5i',
     },
     {
       id: 5,
       title: "Creator's Title 5",
       description: "This will replace the creator's Description 3",
-      img: xummLogo,
-      status: 'error',
+      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
     },
     {
       id: 6,
       title: "Creator's Title 6",
       description: "This will replace the creator's Description 3",
-      img: xummLogo,
-      status: 'error',
+      img: 'https://ipfs.io/ipfs/bafkreiavd46byllzmkgdhakfgu635nqffzwsavrd4qmgxnvomfz556chvi',
     },
     {
       id: 7,
       title: "Creator's Title 7",
       description: "This will replace the creator's Description 3",
-      img: xummLogo,
-      status: 'error',
+      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
     },
     {
       id: 8,
       title: "Creator's Title 8",
       description: "This will replace the creator's Description 3",
-      img: xummLogo,
-      status: 'error',
+      img: 'https://ipfs.io/ipfs/bafkreif265ttbl74nraasybb4hgmaedb6zrqfl2ikms52p4go4ry3f3k5i',
     },
   ];
-  //Logic for posts in pagination where '4' is the posts per page
+  //Logic for refs.data in pagination where '4' is the refs.data per page
   const [currentPage, setCurrentPage] = React.useState(1);
   const indexOfLastPost = currentPage * 4;
   const indexOfFirstPost = indexOfLastPost - 4;
-  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = refs.data.slice(indexOfFirstPost, indexOfLastPost);
   const changePage = (page: number) => {
     setCurrentPage(page);
   };
@@ -116,7 +109,6 @@ export const Creator = (props: CreatorProps) => {
     title: '',
     description: '',
     img: '',
-    status: '',
     visibilty: false,
   });
   const [xummPayload, setXummPayload] =
@@ -226,7 +218,6 @@ export const Creator = (props: CreatorProps) => {
                     title: '',
                     description: '',
                     img: '',
-                    status: '',
                     visibilty: false,
                   })
                 }
@@ -334,12 +325,11 @@ export const Creator = (props: CreatorProps) => {
                           title: post.title,
                           description: post.description,
                           img: post.img,
-                          status: post.status,
                           visibilty: true,
                         })
                       }
                       bordered
-                      color={post.status}
+                      color="success"
                       size="xl"
                       src={post.img}
                     />
@@ -351,7 +341,7 @@ export const Creator = (props: CreatorProps) => {
                 <Pagination
                   rounded
                   onlyDots
-                  total={Math.ceil(posts.length / 4)}
+                  total={Math.ceil(refs.data.length / 4)}
                   size={'xs'}
                   css={{ pb: '10px' }}
                   onChange={changePage}
