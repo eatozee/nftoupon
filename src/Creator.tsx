@@ -17,7 +17,6 @@ import {
 import isEmpty from 'lodash/isEmpty';
 import { Send, ChevronLeft } from 'react-iconly';
 import { CardHeader } from './components/CardHeader';
-
 interface CreatorProps {
   xummConfig: {
     XUMM_APIKEY: String;
@@ -33,73 +32,98 @@ interface ResponsePayload {
   };
 }
 
-type prop = {
-  data: { id: number; title: string; description: string; img: string }[];
-  XUMM_APIKEY: String;
-};
 
-export const Creator = (props: CreatorProps, refs : prop) => {
-  const xummLogo = require('../assets/xumm.svg') as string;
+
+export const Creator = (props: CreatorProps) => {
   const [visible, setVisible] = React.useState(false);
   const closeHandler = () => setVisible(false);
   const { xummConfig } = props;
   const { XUMM_APIKEY, XUMM_APISECRET } = xummConfig;
+ 
+  const [src, setSrc] = React.useState<any>(''); // initial src will be empty
+
+  const uploadFile = (event: any) => {
+ 
+    const reader = new FileReader();
+    const url: any = reader.readAsDataURL(event.target.files[0]);
+    fetch(url)
+    .then(res => res.blob())
+    .then(blob => {console.log(blob);
+    setSrc(blob);
+    }
+    );
+
+  };
   
-  refs.data = [
+  let posts: {
+    id: number;
+    title: string;
+    description: string;
+    img: string;
+    status: string;
+  }[] = [
     {
       id: 1,
       title: "Creator's Title 1",
       description: "This will replace the creator's Description 1",
       img: 'https://ipfs.io/ipfs/bafkreif265ttbl74nraasybb4hgmaedb6zrqfl2ikms52p4go4ry3f3k5i',
+      status: 'error',
     },
     {
       id: 2,
       title: "Creator's Title 2",
       description: "This will replace the creator's Description 2",
       img: 'https://ipfs.io/ipfs/bafkreiavd46byllzmkgdhakfgu635nqffzwsavrd4qmgxnvomfz556chvi',
+      status: 'warning',
     },
     {
       id: 3,
       title: "Creator's Title 3",
       description: "This will replace the creator's Description 3",
       img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
+      status: 'success',
     },
     {
       id: 4,
       title: "Creator's Title 4",
       description: "This will replace the creator's Description 4",
-      img: 'https://ipfs.io/ipfs/bafkreif265ttbl74nraasybb4hgmaedb6zrqfl2ikms52p4go4ry3f3k5i',
+      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
+      status: 'error',
     },
     {
       id: 5,
       title: "Creator's Title 5",
       description: "This will replace the creator's Description 3",
       img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
+      status: 'error',
     },
     {
       id: 6,
       title: "Creator's Title 6",
       description: "This will replace the creator's Description 3",
-      img: 'https://ipfs.io/ipfs/bafkreiavd46byllzmkgdhakfgu635nqffzwsavrd4qmgxnvomfz556chvi',
+      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
+      status: 'error',
     },
     {
       id: 7,
       title: "Creator's Title 7",
       description: "This will replace the creator's Description 3",
       img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
+      status: 'error',
     },
     {
       id: 8,
       title: "Creator's Title 8",
       description: "This will replace the creator's Description 3",
-      img: 'https://ipfs.io/ipfs/bafkreif265ttbl74nraasybb4hgmaedb6zrqfl2ikms52p4go4ry3f3k5i',
+      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
+      status: 'error',
     },
   ];
   //Logic for refs.data in pagination where '4' is the refs.data per page
   const [currentPage, setCurrentPage] = React.useState(1);
   const indexOfLastPost = currentPage * 4;
   const indexOfFirstPost = indexOfLastPost - 4;
-  const currentPosts = refs.data.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
   const changePage = (page: number) => {
     setCurrentPage(page);
   };
@@ -114,11 +138,11 @@ export const Creator = (props: CreatorProps, refs : prop) => {
   const [xummPayload, setXummPayload] =
     React.useState<ResponsePayload | null>(null);
   const [xummStatus, setXummStatus] = React.useState('idle');
-  const [transactionType, setTransactionType] = React.useState('');
   const [walletAddress, setWalletAddress] = React.useState({
     profileWalletAddress: '',
     connectedWalletAddress: '',
   });
+  const [sendButtonDisabled, setSendButtonDisabled] = React.useState(true);
 
   const connectWallet = async () => {
     // just a placeholder will change with the real one
@@ -140,9 +164,6 @@ export const Creator = (props: CreatorProps, refs : prop) => {
       const { payload } = await response.json();
 
       if (!isEmpty(payload)) {
-        // ws.onmessage = (event) => {
-        //   console.log(event.data);
-        // };
         setXummPayload(payload);
         setVisible(true);
       } else {
@@ -167,9 +188,9 @@ export const Creator = (props: CreatorProps, refs : prop) => {
         const { opened, payload_uuidv4, signed, expired } = JSON.parse(
           event.data
         );
-        console.log(event.data);
         if (opened) {
           setXummStatus('connected');
+          setSendButtonDisabled(false);
         } else if (expired) {
           setXummStatus('expired');
           closeSocket(ws);
@@ -194,7 +215,6 @@ export const Creator = (props: CreatorProps, refs : prop) => {
             .then((json) => {
               setXummStatus('idle');
               setWalletAddress(json.payload);
-              setTransactionType(json.tx_type);
               closeSocket(ws);
             })
             .catch((err) => console.error('error:' + err));
@@ -295,12 +315,20 @@ export const Creator = (props: CreatorProps, refs : prop) => {
               <Spacer y={1.5} />
               <Textarea labelPlaceholder="Description" />
               <Spacer y={1.5} />
-              <Input underlined clearable type="file" />
+              <Input underlined clearable type="file" name="uploadFile" onChange={(event) => uploadFile(event)}/>
               <Spacer y={1.5} />
+
               <Row justify="flex-end">
+                {sendButtonDisabled ? (
+                <Button auto iconRight={<Send set="bulk" />} disabled>
+                  Send
+                </Button>
+                ) : (
                 <Button auto iconRight={<Send set="bulk" />}>
                   Send
                 </Button>
+                )}
+                
               </Row>
             </>
           )}
@@ -341,7 +369,7 @@ export const Creator = (props: CreatorProps, refs : prop) => {
                 <Pagination
                   rounded
                   onlyDots
-                  total={Math.ceil(refs.data.length / 4)}
+                  total={Math.ceil(posts.length / 4)}
                   size={'xs'}
                   css={{ pb: '10px' }}
                   onChange={changePage}
@@ -359,3 +387,7 @@ export const Creator = (props: CreatorProps, refs : prop) => {
     </NextUIProvider>
   );
 };
+function useState(arg0: string): [any, any] {
+  throw new Error('Function not implemented.');
+}
+
