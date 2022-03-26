@@ -23,11 +23,11 @@ type prop = {
     img: string;
     status: string;
   }[];
-  NFToupon_Key: string;
+  // NFToupon_Key: string;
 };
-export const Arbiter = ({ data, NFToupon_Key }: prop) => {
+export const Arbiter = ({ data }: prop) => {
   //JUST THE HARDCODED VALUE OF data, NFToupon_Key, acceptHandler and rejectHandler we can take if from the one who is using this plugin
-  NFToupon_Key = 'Accepted';
+  // NFToupon_Key = 'Accepted';
   data = [
     {
       id: 1,

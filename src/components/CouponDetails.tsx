@@ -75,27 +75,23 @@ export const CouponDetails = (props: Details) => {
         type="date"
       />
       <Spacer y={0.8} />
-      <Row gap={0.1}>
-          <Col>
+      <Row justify='space-around'>
             <Button
               onClick={() => clickEvent('Accepted')}
               css={{ height: '40px'}}
-              size="sm"
+              auto
               color="success"
             >
               {props.acceptBtnText}
             </Button>
-          </Col>
-          <Col>
             <Button
               css={{ height: '40px'}}
-              size="sm"
+              auto
               color="error"
               onClick={() => clickEvent('Rejected')}
             >
               Reject
             </Button>
-          </Col>
       </Row>
     </>
   );
