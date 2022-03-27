@@ -92,7 +92,7 @@ export const Arbiter = () => {
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
         } else if (signed) {
-          setLockParameter(false);
+          // setLockParameter(false);
           fetch(`https://eatozee-crypto.app/api/nftoupon/creator/payload`, {
             method: "POST",
             headers: {
@@ -179,11 +179,10 @@ export const Arbiter = () => {
   };
 
   const [visible, setVisible] = React.useState(false);
-  const handler = () => setVisible(true);
   const closeHandler = () => {
     setVisible(false);
   };
-  const [lockParameter, setLockParameter] = React.useState(true);
+  // const [lockParameter, setLockParameter] = React.useState(true);
 
   //Logic for data in pagination where '4' is the data per page
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -242,7 +241,7 @@ export const Arbiter = () => {
             <Image
               width="100%"
               height="100%"
-              src={xummPayload?.refs?.qr_png}
+              src="{xummPayload?.refs?.qr_png}"
               alt="qr_code"
             />
           ) : (
