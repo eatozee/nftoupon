@@ -9,13 +9,11 @@ import {
 import React from 'react';
 
 type Details = {
-  id: number;
   title: string;
   description: string;
   image: string;
   status: string;
   onClick: (value: {
-    id: number;
     title: string;
     description: string;
     image: string;
@@ -29,7 +27,6 @@ export const CouponDetails = (props: Details) => {
   const clickEvent = (status: string) => {
     // do something status = Accept or reject
     const data = {
-      id: props.id,
       title: props.title,
       description: props.description,
       image: props.image,
