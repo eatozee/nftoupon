@@ -20,10 +20,10 @@ type NFTouponPayload = {
   description: string;
   status: string;
 }[];
-type prop = {
-  NFToupon_Key: string;
-};
-export const Arbiter = ({ NFToupon_Key }: prop) => {
+// type prop = {
+//   NFToupon_Key: string;
+// };
+export const Arbiter = () => {
   //JUST THE HARDCODED VALUE OF data, NFToupon_Key, acceptHandler and rejectHandler we can take if from the one who is using this plugin
   // NFToupon_Key = 'Accepted';
 
