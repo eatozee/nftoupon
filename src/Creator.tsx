@@ -36,121 +36,87 @@ type CreatorInput= {
   description: string;
 }
 
+type NFTouponPayload = {
+  id: number;
+  title: string;
+  imageUrl: string;
+  description: string;
+  status: string;
+}[];
 
 
-export const Creator = (props: CreatorProps) => {
+
+export const Creator = () => {
   const [visible, setVisible] = React.useState(false);
   const closeHandler = () => setVisible(false);
-  const { xummConfig } = props;
-  const { XUMM_APIKEY, XUMM_APISECRET } = xummConfig;
- 
-  const [src, setSrc] = React.useState<any>(''); // initial src will be empty
-  const [inputValue, setInputValue] = React.useState<string>(""); //storing title input
-  const [textAreaValue, setTextAreaValue] = React.useState<string>(""); //storing description input
-
-  const uploadFile = (event: any) => {
- 
-    const reader = new FileReader();
-    const url: any = reader.readAsDataURL(event.target.files[0]);
-    fetch(url)
-    .then(res => res.blob())
-    .then(blob => {console.log(blob);
-    setSrc(blob);
-    }
-    );
-
-  };
-  
-  let posts: {
-    id: number;
-    title: string;
-    description: string;
-    img: string;
-    status: string;
-  }[] = [
-    {
-      id: 1,
-      title: "Creator's Title 1",
-      description: "This will replace the creator's Description 1",
-      img: 'https://ipfs.io/ipfs/bafkreif265ttbl74nraasybb4hgmaedb6zrqfl2ikms52p4go4ry3f3k5i',
-      status: 'error',
-    },
-    {
-      id: 2,
-      title: "Creator's Title 2",
-      description: "This will replace the creator's Description 2",
-      img: 'https://ipfs.io/ipfs/bafkreiavd46byllzmkgdhakfgu635nqffzwsavrd4qmgxnvomfz556chvi',
-      status: 'warning',
-    },
-    {
-      id: 3,
-      title: "Creator's Title 3",
-      description: "This will replace the creator's Description 3",
-      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
-      status: 'success',
-    },
-    {
-      id: 4,
-      title: "Creator's Title 4",
-      description: "This will replace the creator's Description 4",
-      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
-      status: 'error',
-    },
-    {
-      id: 5,
-      title: "Creator's Title 5",
-      description: "This will replace the creator's Description 3",
-      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
-      status: 'error',
-    },
-    {
-      id: 6,
-      title: "Creator's Title 6",
-      description: "This will replace the creator's Description 3",
-      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
-      status: 'error',
-    },
-    {
-      id: 7,
-      title: "Creator's Title 7",
-      description: "This will replace the creator's Description 3",
-      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
-      status: 'error',
-    },
-    {
-      id: 8,
-      title: "Creator's Title 8",
-      description: "This will replace the creator's Description 3",
-      img: 'https://ipfs.io/ipfs/bafkreihzqqyugpckf7gs5ixyxslzffqmm5gy2tz4o6ec2kuvwfqq3kgply',
-      status: 'error',
-    },
-  ];
-  //Logic for refs.data in pagination where '4' is the refs.data per page
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const indexOfLastPost = currentPage * 4;
-  const indexOfFirstPost = indexOfLastPost - 4;
-  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
-  const changePage = (page: number) => {
-    setCurrentPage(page);
-  };
-
   const [Details, setDetails] = React.useState({
     id: 0,
     title: '',
     description: '',
-    img: '',
-    visibilty: false,
+    imageUrl: '',
+    status: '',
+    offer:'',
+    date:'',
+    visibility: false,
   });
   const [xummPayload, setXummPayload] =
     React.useState<ResponsePayload | null>(null);
-  const [xummStatus, setXummStatus] = React.useState('idle');
-  const [walletAddress, setWalletAddress] = React.useState({
-    profileWalletAddress: '',
-    connectedWalletAddress: '',
-  });
+  const [walletAddress, setWalletAddress] = React.useState<string>("");
+
   const [sendButtonDisabled, setSendButtonDisabled] = React.useState(true);
+  const [data, setData] = React.useState<NFTouponPayload>([]);
+ 
+  const [src, setSrc] = React.useState<any>(""); // initial src will be empty
+  const [inputValue, setInputValue] = React.useState<string>(""); //storing title input
+  const [textAreaValue, setTextAreaValue] = React.useState<string>(""); //storing description input
+  
+
+  const uploadFile = (event: any) => {
+ 
+    const reader = new FileReader();
+    reader.onload = async function(){
+      const binaryData: any = reader.result;
+      const byteString = atob(binaryData.split(',')[1]);
+      const mimeString = binaryData.split(',')[0].split(':')[1].split(';')[0];
+      console.log({byteString, mimeString})
+      setSrc(byteString);  
+  }
+  reader.readAsDataURL(event.target.files[0]);
+    };
 
 
+  
+  
+  //Logic for refs.data in pagination where '4' is the refs.data per page
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const indexOfLastPost = currentPage * 4;
+  const indexOfFirstPost = indexOfLastPost - 4;
+  const currentPosts: any = !isEmpty(data) && data.slice(indexOfFirstPost, indexOfLastPost);
+  const changePage = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const sendDetails = async () => {
+      const response = await fetch(
+        `http://localhost:3000/api/nftoupon/meta`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          },
+          body: JSON.stringify({
+            title: inputValue,
+            description: textAreaValue,
+            file: src,
+            address: 'abcdefghijkl',
+            status: 'Pending',
+          }),
+        }
+      );
+      const result = await response.json();
+      console.log(result);
+    }
 
   const connectWallet = async () => {
     // just a placeholder will change with the real one
@@ -163,10 +129,6 @@ export const Creator = (props: CreatorProps) => {
             'Content-Type': 'application/json',
             'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
           },
-          body: JSON.stringify({
-            XUMM_APIKEY: '9d8fe7cf-bff0-46f3-87fc-a8c4642f4d46',
-            XUMM_APISECRET: 'fdefb301-2849-4406-b856-5f27cbb93987',
-          }),
         }
       );
       const { payload } = await response.json();
@@ -189,6 +151,36 @@ export const Creator = (props: CreatorProps) => {
   };
 
   useEffect(() => {
+    const getDetails = async () => {
+      try {
+        const respose = await fetch(
+          'https://eatozee-crypto.app/api/nftoupon/getMeta',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+            },
+            body: JSON.stringify({
+              address: walletAddress,
+            }),
+          }
+        );
+        console.log('wallet address  ',  walletAddress);
+        const {nftoupons} = await respose.json();
+        console.log(nftoupons) ;
+        setData(nftoupons);
+
+      } catch (error) {
+        console.log('error', error);
+      }
+    };
+    if(!isEmpty(walletAddress)){
+      getDetails();
+    }
+  }, [walletAddress]);
+
+  useEffect(() => {
     if (!isEmpty(xummPayload)) {
       const wsURL = xummPayload?.refs?.websocket_status;
       const ws = new WebSocket(wsURL || '');
@@ -197,31 +189,26 @@ export const Creator = (props: CreatorProps) => {
           event.data
         );
         if (opened) {
-          setXummStatus('connected');
           setSendButtonDisabled(false);
         } else if (expired) {
-          setXummStatus('expired');
           closeSocket(ws);
         } else if (!isEmpty(payload_uuidv4) && !signed) {
-          setXummStatus('declined');
           closeSocket(ws);
         } else if (signed) {
-          setXummStatus('verifying');
 
-          fetch(`https://eatozee-crypto.app/api/nftoupon/payload`, {
+          fetch(`https://eatozee-crypto.app/api/nftoupon/creator/payload`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
             },
             body: JSON.stringify({
-              XUMM_APIKEY,
-              XUMM_APISECRET,
               payload_uuidv4,
             }),
           })
             .then((res) => res.json())
             .then((json) => {
-              setXummStatus('idle');
+              console.log(json);
               setWalletAddress(json.payload);
               closeSocket(ws);
             })
@@ -229,13 +216,13 @@ export const Creator = (props: CreatorProps) => {
         }
       };
     }
-  });
+  },[xummPayload]);
   return (
     <NextUIProvider>
       <Card css={{ mw: '300px', mh: '650px' }}>
         <Card.Header>
           <Row justify="space-between" align="center">
-            {Details.visibilty ? (
+            {Details.visibility ? (
               <Button
                 auto
                 size={'sm'}
@@ -245,8 +232,11 @@ export const Creator = (props: CreatorProps) => {
                     id: 0,
                     title: '',
                     description: '',
-                    img: '',
-                    visibilty: false,
+                    imageUrl: '',
+                    status: '',
+                    offer:'',
+                    date:'',
+                    visibility: false,
                   })
                 }
                 light
@@ -264,12 +254,12 @@ export const Creator = (props: CreatorProps) => {
         </Card.Header>
         <Divider />
         <Card.Body css={{ py: '$10' }}>
-          {Details.visibilty ? (
+          {Details.visibility ? (
             <>
               <Container display="flex" justify="center" fluid>
                 <img
                   height="180px"
-                  src={Details.img}
+                  src={Details.imageUrl}
                   alt="Creator's NFT image"
                 />
               </Container>
@@ -299,10 +289,10 @@ export const Creator = (props: CreatorProps) => {
                     type="number"
                     labelRight="XRP"
                     min={1}
-                    initialValue={'1'}
+                    initialValue={Details.offer}
                   />
                   <Spacer y={0.5} />
-                  <Input readOnly width="100%" required label="Date" />
+                  <Input readOnly initialValue={Details.date} width="100%" required label="Date" />
                 </Row>
               </Grid.Container>
               <Spacer y={0.8} />
@@ -320,12 +310,12 @@ export const Creator = (props: CreatorProps) => {
             <>
               <Spacer y={0.5} />
               <Input size="md" clearable labelPlaceholder="Title" type="text" value={inputValue} onChange={(
-                ev: React.ChangeEvent<HTMLInputElement>,
+                ev: any
             ): void => setInputValue(ev.target.value)} />
               <Spacer y={1.5} />
               <Textarea labelPlaceholder="Description" value={textAreaValue}
               onChange={(
-                ev: React.ChangeEvent<HTMLTextAreaElement>,
+                ev: any
             ): void => setTextAreaValue(ev.target.value)} />
               <Spacer y={1.5} />
               <Input underlined clearable type="file" name="uploadFile" onChange={(event) => uploadFile(event)}/>
@@ -333,11 +323,11 @@ export const Creator = (props: CreatorProps) => {
 
               <Row justify="flex-end">
                 {sendButtonDisabled ? (
-                <Button auto iconRight={<Send set="bulk" />} disabled>
+                <Button auto iconRight={<Send set="bulk" />} onClick={sendDetails} disabled>
                   Send
                 </Button>
                 ) : (
-                <Button auto iconRight={<Send set="bulk" />}>
+                <Button auto iconRight={<Send set="bulk" />} onClick={sendDetails}>
                   Send
                 </Button>
                 )}
@@ -346,33 +336,37 @@ export const Creator = (props: CreatorProps) => {
             </>
           )}
         </Card.Body>
+        <Divider />
 
-        {Details.visibilty ? null : (
+        {Details.visibility ? null : (
+
           <>
-            <Divider />
+            
             <Spacer y={0.5} />
-            <Grid.Container gap={1} justify="center">
+            {data.length > 0 && ( <Grid.Container gap={1} justify="center">
               <Row justify="center">
-                {currentPosts.map((post) => (
-                  <Grid key={post.id} lg={3}>
+                {currentPosts.map((post: any) => (
+                  <Grid  lg={3}>
                     <Avatar
                       zoomed
                       pointer
                       squared
-                      key={post.id}
                       onClick={() =>
                         setDetails({
                           id: post.id,
                           title: post.title,
                           description: post.description,
-                          img: post.img,
-                          visibilty: true,
+                          imageUrl: post.imageUrl,
+                          status: post.status,
+                          offer:  post.offer,
+                          date:post.date,
+                          visibility: true,
                         })
                       }
                       bordered
-                      color="success"
+                      color={((post.status === "Pending")  ? "warning" : (post.status === "Accepted") ? "success" : "error")}
                       size="xl"
-                      src={post.img}
+                      src={post.imageUrl}
                     />
                   </Grid>
                 ))}
@@ -382,17 +376,18 @@ export const Creator = (props: CreatorProps) => {
                 <Pagination
                   rounded
                   onlyDots
-                  total={Math.ceil(posts.length / 4)}
+                  total={Math.ceil(data.length / 4)}
                   size={'xs'}
                   css={{ pb: '10px' }}
                   onChange={changePage}
                 />
               </Row>
-            </Grid.Container>
+            </Grid.Container>)}
+            <Divider />
           </>
         )}
 
-        <Divider />
+        
         <Card.Footer css={{ justifyContent: 'center' }}>
           <Text>© {`${new Date().getFullYear()}`} eatozee.</Text>
         </Card.Footer>
