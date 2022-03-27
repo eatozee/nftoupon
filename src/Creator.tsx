@@ -24,12 +24,6 @@ const lightTheme = createTheme({
   type: 'light',
 });
 
-interface CreatorProps {
-  xummConfig: {
-    XUMM_APIKEY: String;
-    XUMM_APISECRET: String;
-  };
-}
 interface ResponsePayload {
   payload: {
     uuid: string;
@@ -41,10 +35,8 @@ interface ResponsePayload {
   error: string;
 }
 
-export const Creator = (props: CreatorProps) => {
+export const Creator = () => {
   const [isDark, setIsDark] = React.useState(false);
-  const { xummConfig } = props;
-  const { XUMM_APIKEY, XUMM_APISECRET } = xummConfig;
 
   const connectWallet = async () => {
     // just a placeholder will change with the real one
@@ -55,8 +47,8 @@ export const Creator = (props: CreatorProps) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          XUMM_APIKEY,
-          XUMM_APISECRET,
+          XUMM_APIKEY: '',
+          XUMM_APISECRET: '',
         }),
       });
 
