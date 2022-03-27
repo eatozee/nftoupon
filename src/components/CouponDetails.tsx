@@ -5,32 +5,35 @@ import {
   Textarea,
   Row,
   Button,
+  Col,
 } from '@nextui-org/react';
 import React from 'react';
 
 type Details = {
+  id: number;
   title: string;
   description: string;
-  image: string;
+  imageUrl: string;
   status: string;
   onClick: (value: {
-    title: string;
-    description: string;
-    image: string;
+    id: number;
     status: string;
+    expiryDate: string;
+    offer: string;
   }) => void;
   acceptBtnText: string;
   readOnlyForCreator?: boolean;
 };
 
 export const CouponDetails = (props: Details) => {
+  let date: string, offer: string;  
   const clickEvent = (status: string) => {
     // do something status = Accept or reject
     const data = {
-      title: props.title,
-      description: props.description,
-      image: props.image,
+      id: props.id,
       status: status,
+      expiryDate: date, 
+      offer: offer,
     };
     props.onClick(data);
   };
@@ -38,7 +41,7 @@ export const CouponDetails = (props: Details) => {
   return (
     <>
       <Container display="flex" justify="center" fluid>
-        <img height="180px" src={props.image} alt="Creator's NFT image" />
+        <img height="180px" src={props.imageUrl} alt="Creator's NFT imageUrl" />
       </Container>
 
       <Spacer y={0.5} />
@@ -53,7 +56,6 @@ export const CouponDetails = (props: Details) => {
       />
       <Spacer y={0.5} />
       <Input
-        readOnly={props.readOnlyForCreator}
         required
         label="Offer"
         type="number"
@@ -61,6 +63,7 @@ export const CouponDetails = (props: Details) => {
         min={1}
         width="100%"
         initialValue={'1'}
+        onChange = {(e)=> {offer = e.target.value}}
       />
       <Spacer y={0.5} />
       <Input
@@ -69,25 +72,28 @@ export const CouponDetails = (props: Details) => {
         required
         label="Date"
         type="date"
+        onChange = {(e)=> {date = e.target.value}}
       />
       <Spacer y={0.8} />
-      <Row justify='space-around'>
-            <Button
-              onClick={() => clickEvent('Accepted')}
-              css={{ height: '40px'}}
-              auto
-              color="success"
-            >
-              {props.acceptBtnText}
-            </Button>
-            <Button
-              css={{ height: '40px'}}
-              auto
-              color="error"
-              onClick={() => clickEvent('Rejected')}
-            >
-              Reject
-            </Button>
+      <Row>
+            <Col>
+              <Button
+                onClick={() => clickEvent('Accepted')}
+                css={{ height: '40px'}}
+                color="success"
+              >
+                {props.acceptBtnText}
+              </Button>
+            </Col>
+            <Col >
+              <Button
+                css={{ height: '40px'}}
+                color="error"
+                onClick={() => clickEvent('Rejected')}
+              >
+                Reject
+              </Button>
+            </Col>
       </Row>
     </>
   );

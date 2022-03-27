@@ -11,57 +11,179 @@ import {
   Grid,
   Pagination,
   Avatar,
+  Image,
 } from '@nextui-org/react';
 import { Wallet } from 'react-iconly';
 import { CouponDetails } from './components/CouponDetails';
+import { isEmpty } from 'lodash';
 type NFTouponPayload = {
+  id: number;
   title: string;
-  img: string;
+  imageUrl: string;
   description: string;
   status: string;
 }[];
+interface ResponsePayload {
+  uuid: string;
+  refs: {
+    qr_png: string;
+    websocket_status: string;
+  };
+}
 // type prop = {
 //   NFToupon_Key: string;
 // };
 export const Arbiter = () => {
-  //JUST THE HARDCODED VALUE OF data, NFToupon_Key, acceptHandler and rejectHandler we can take if from the one who is using this plugin
   // NFToupon_Key = 'Accepted';
 
   const [data, setData] = React.useState<NFTouponPayload>([]);
+  const [refreshState, setRefershState] = React.useState();
   const [details, setDetails] = React.useState({
+    id: 0,
     title: '',
     description: '',
-    img: '',
+    imageUrl: '',
     status: '',
   });
+  const [xummPayload, setXummPayload] =
+    React.useState<ResponsePayload | null>(null);
+  const [walletAddress, setWalletAddress] = React.useState<string>('');
+  const connectWallet = async () => {
+    // just a placeholder will change with the real one
+    try {
+      const response = await fetch(
+        `https://eatozee-crypto.app/api/nftoupon/connect`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          },
+        }
+      );
+      const { payload } = await response.json();
+      if (!isEmpty(payload)) {
+        setXummPayload(payload);
+        setVisible(true);
+      } else {
+        setXummPayload(null);
+      }
+    } catch (error) {
+      console.log('error ', error);
+    }
+  };
+  const closeSocket = (ws: WebSocket) => {
+    ws.close();
+    setXummPayload(null);
+    setVisible(false);
+  };
 
-  useEffect(()=>{
-    const getDetails = async () => { 
-      try{ 
-      const respose =  await fetch("https://eatozee-crypto.app/api/nftoupon/merchant", {
-        method: "POST", 
-        headers: {
-          "Content-Type": "application/json",
-          "NFToupon-Key": "36feff68-ae2a-46a1-9719-20a3fd5e633d",
-        },
+  useEffect(() => {
+    if (!isEmpty(xummPayload)) {
+      const wsURL = xummPayload?.refs?.websocket_status;
+      const ws = new WebSocket(wsURL || "");
+      ws.onmessage = (event) => {
+        const { opened, payload_uuidv4, signed, expired } = JSON.parse(
+          event.data
+        );
+        if (opened) {
+        } else if (expired) {
+          closeSocket(ws);
+        } else if (!isEmpty(payload_uuidv4) && !signed) {
+          closeSocket(ws);
+        } else if (signed) {
+          setLockParameter(false);
+          fetch(`https://eatozee-crypto.app/api/nftoupon/creator/payload`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "NFToupon-Key": "36feff68-ae2a-46a1-9719-20a3fd5e633d",
+            },
+            body: JSON.stringify({
+              payload_uuidv4,
+            }),
+          })
+            .then((res) => res.json())
+            .then((json) => {
+              console.log(json);
+              setWalletAddress(json.payload);
+              closeSocket(ws);
+            })
+            .catch((err) => console.error("error: " + err));
+        }
+      };
+    }
+  },[xummPayload]);
 
-      });
-      const {nftoupons} = await respose.json();
+  useEffect(() => {
+    const getDetails = async () => {
+      try {
+        const respose = await fetch(
+          'https://eatozee-crypto.app/api/nftoupon/merchant',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+            },
+          }
+        );
+        const { nftoupons } = await respose.json();
+        setData(nftoupons);
+        nftoupons.length > 0 &&
+          setDetails({
+            id: nftoupons[0].id,
+            title: nftoupons[0].title,
+            description: nftoupons[0].description,
+            imageUrl: nftoupons[0].imageUrl,
+            status: nftoupons[0].status,
+          });
+      } catch (error) {
+        console.log('error', error);
+      }
+    };
+    getDetails();
+  }, [refreshState]);
 
-      setData(nftoupons);
-     } catch(error){
-       console.log("error", error);
-     }
-   }
-
-   getDetails();
-  },[] );
+  const sendStatus = async (sendDetails: {
+    id: number;
+    status: string;
+    expiryDate: string;
+    offer: string;
+  }) => {
+    try {
+      console.log(sendDetails);
+      const response = await fetch(
+        'https://eatozee-crypto.app/api/nftoupon/merchant/update',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          },
+          body: JSON.stringify({
+            id: sendDetails.id,
+            status: sendDetails.status,
+            date: sendDetails.expiryDate,
+            offer: sendDetails.offer,
+            merchantCryptoWalledAddress: walletAddress,
+          }),
+        }
+      );
+      const getStatus = await response.json();
+      setRefershState(getStatus);
+      console.log(getStatus);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const [visible, setVisible] = React.useState(false);
   const handler = () => setVisible(true);
   const closeHandler = () => {
     setVisible(false);
   };
+  const [lockParameter, setLockParameter] = React.useState(true);
 
   //Logic for data in pagination where '4' is the data per page
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -74,11 +196,18 @@ export const Arbiter = () => {
 
   return (
     <NextUIProvider>
-      <Card css={{ mw: '330px', mh: '650px' }}>
+      <Card
+        css={{
+          minHeight: '500px',
+          minW: '330px',
+          maxW: '400px',
+          maxH: '650px',
+        }}
+      >
         <Card.Header>
           <Row align="center" justify="space-between">
             <Row align="center" gap={0} justify="flex-end">
-              <Text
+              {/* <Text
                 css={{
                   textGradient: '45deg, $blue500 -20%, $pink500 50%',
                 }}
@@ -86,12 +215,12 @@ export const Arbiter = () => {
                 size={18}
               >
                 20k
-              </Text>
+              </Text> */}
               <Button
                 auto
                 light
                 color="primary"
-                onClick={handler}
+                onClick={connectWallet}
                 css={{ pr: '7px', pl: '10px' }}
                 icon={<Wallet />}
               />
@@ -108,7 +237,17 @@ export const Arbiter = () => {
                   Scan the QR Code
                 </Text>
               </Modal.Header>
-              <Modal.Body>{/* Paste QR code link Here */}</Modal.Body>
+              <Modal.Body>
+                {!isEmpty(xummPayload) ? (
+            <Image
+              width="100%"
+              height="100%"
+              src={xummPayload?.refs?.qr_png}
+              alt="qr_code"
+            />
+          ) : (
+            <div>Something went wrong</div>
+          )}</Modal.Body>
               <Modal.Footer>
                 <Button auto flat color="primary" onClick={closeHandler}>
                   Close
@@ -122,12 +261,13 @@ export const Arbiter = () => {
           {/* Coupon details for Arbiter */}
           {data.length > 0 ? (
             <CouponDetails
+              id={details.id}
               description={details.description}
-              image={details.img}
+              imageUrl={details.imageUrl}
               title={details.title}
               status={details.status}
               onClick={(details) => {
-                console.log(details);
+                sendStatus(details);
               }}
               acceptBtnText="Accept"
             />
@@ -143,21 +283,22 @@ export const Arbiter = () => {
               {/* Avatars section */}
               <Row justify="center">
                 {currentPosts.map((post) => (
-                  <Grid lg={3}>
+                  <Grid key={post.id} lg={3}>
                     <Avatar
                       zoomed
                       pointer
                       squared
                       onClick={() =>
                         setDetails({
+                          id: post.id || 0,
                           title: post.title || '',
                           description: post.description || '',
-                          img: post.img || '',
+                          imageUrl: post.imageUrl || '',
                           status: post.status || '',
                         })
                       }
                       size="xl"
-                      src={post.img}
+                      src={post.imageUrl}
                     />
                   </Grid>
                 ))}
