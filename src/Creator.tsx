@@ -29,6 +29,9 @@ interface ResponsePayload {
   imageUrl: string;
 }
 
+type Props = {
+  NFToupon_Key: string;
+};
 
 type NFTouponPayload = {
   id: number;
@@ -42,7 +45,7 @@ type NFTouponPayload = {
 
 
 
-export const Creator = () => {
+export const Creator = ({NFToupon_Key}: Props) => {
   const [visible, setVisible] = React.useState(false);
   const closeHandler = () => setVisible(false);
   const [details, setDetails] = React.useState({
@@ -107,7 +110,7 @@ export const Creator = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          'NFToupon-Key': NFToupon_Key,
         },
         body: JSON.stringify({
           tokenOfferIndex: details.tokenOfferIndex,
@@ -133,7 +136,7 @@ export const Creator = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+            'NFToupon-Key': NFToupon_Key,
           },
           body: JSON.stringify({
             status: 'Declined',
@@ -152,7 +155,7 @@ export const Creator = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+            'NFToupon-Key': NFToupon_Key,
           },
           body: JSON.stringify({
             file: src,
@@ -179,7 +182,7 @@ export const Creator = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+            'NFToupon-Key': NFToupon_Key,
           },
         }
       );
@@ -211,7 +214,7 @@ export const Creator = () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+              'NFToupon-Key': NFToupon_Key,
             },
             body: JSON.stringify({
               address: walletAddress,
@@ -248,7 +251,7 @@ export const Creator = () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+              'NFToupon-Key': NFToupon_Key,
             },
             body: JSON.stringify({
               payload_uuidv4,
@@ -276,7 +279,7 @@ export const Creator = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+            'NFToupon-Key': NFToupon_Key,
           },
           body: JSON.stringify({
             address: walletAddress,
@@ -298,7 +301,7 @@ export const Creator = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          'NFToupon-Key': NFToupon_Key,
         },
         body: JSON.stringify({
           status: 'Created',
