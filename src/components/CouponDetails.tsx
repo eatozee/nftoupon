@@ -30,9 +30,7 @@ type Details = {
 
 export const CouponDetails = (props: Details) => {
   let date: string, offer: string;
-  console.log("Inside couponDetails component    ",props);
   const clickEvent = (status: string) => {
-    // do something status = Accept or reject
     const data = {
       id: props.id,
       status: status,
@@ -41,7 +39,6 @@ export const CouponDetails = (props: Details) => {
       cryptoWalletAddress: props.cryptoWalletAddress,
       tokenId: props.tokenId,
     };
-    console.log("We are inside click event    ",data);
     props.onClick(data);
   };
 

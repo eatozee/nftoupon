@@ -32,12 +32,10 @@ interface ResponsePayload {
     websocket_status: string;
   };
 }
-// type prop = {
-//   NFToupon_Key: string;
-// };
-export const Arbiter = () => {
-  // NFToupon_Key = 'Accepted';
-
+type Props = {
+  NFToupon_Key: string;
+};
+export const Arbiter = ({NFToupon_Key}: Props) => {
   const [transactionType, setTransactionType] = React.useState('');
   const [data, setData] = React.useState<NFTouponPayload>([]);
   const [lockParameter, setLockParameter] = React.useState(true);
@@ -69,7 +67,7 @@ export const Arbiter = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+            'NFToupon-Key': NFToupon_Key,
           },
         }
       );
@@ -110,7 +108,7 @@ export const Arbiter = () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+              'NFToupon-Key': NFToupon_Key,
             },
             body: JSON.stringify({
               payload_uuidv4,
@@ -118,7 +116,6 @@ export const Arbiter = () => {
           })
             .then((res) => res.json())
             .then((json) => {
-              console.log(json);
               setWalletAddress(json.payload);
               setTransactionType(json.tx_type);
               setLockParameter(false);
@@ -133,13 +130,13 @@ export const Arbiter = () => {
   useEffect(() => {
     if (transactionType === 'NFTokenCreateOffer') {
       const update = async () => {
-        const response = await fetch(
+         await fetch(
           'https://eatozee-crypto.app/api/nftoupon/merchant/update',
           {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+              'NFToupon-Key': NFToupon_Key,
             },
             body: JSON.stringify({
               id: details.id,
@@ -152,22 +149,19 @@ export const Arbiter = () => {
             }),
           }
         );
-
-        const { nftoupons } = await response.json();
-        console.log(nftoupons);
       };
       update();
     }
   }, [transactionType]);
 
   const rejectHandler = async () => {
-    const response = await fetch(
+     await fetch(
       'https://eatozee-crypto.app/api/nftoupon/merchant/update',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          'NFToupon-Key': NFToupon_Key,
         },
         body: JSON.stringify({
           id: details.id,
@@ -179,9 +173,6 @@ export const Arbiter = () => {
         }),
       }
     );
-
-    const { nftoupons } = await response.json();
-    console.log(nftoupons);
   };
 
   useEffect(() => {
@@ -193,7 +184,7 @@ export const Arbiter = () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+              'NFToupon-Key': NFToupon_Key,
             },
           }
         );
@@ -231,7 +222,7 @@ export const Arbiter = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+            'NFToupon-Key': NFToupon_Key,
           },
           body: JSON.stringify({
             offer: sendDetails.offer,
@@ -301,28 +292,30 @@ export const Arbiter = () => {
                 />
               ) : (
                 <>
-                  <Button
-                    light
-                    color="error"
-                    onClick={() => {
-                      setWalletAddress('');
-                      setLockParameter(true);
-                    }}
-                    iconRight={<CloseSquare set={'bulk'} />}
-                  >
-                    <Text
+                  <Row justify='flex-end' align='center'>
+                  <Text
                       size={12}
                       b
                       color="error"
                       css={{
-                        width: '75%',
+                        width: '35%',
                         textOverflow: 'ellipsis',
                         overflow: 'hidden',
                       }}
                     >
                       {walletAddress}
                     </Text>
-                  </Button>
+                    <Button
+                      size="xs"
+                      light
+                      color="error"
+                      onClick={() => {
+                        setWalletAddress('');
+                        setLockParameter(true);
+                      }}
+                      iconRight={<CloseSquare set={'bulk'} />}
+                    />
+                  </Row>
                 </>
               )}
             </Row>
