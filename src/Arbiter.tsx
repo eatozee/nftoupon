@@ -13,7 +13,7 @@ import {
   Avatar,
   Image,
 } from '@nextui-org/react';
-import { Wallet } from 'react-iconly';
+import { Wallet, CloseSquare } from 'react-iconly';
 import { CouponDetails } from './components/CouponDetails';
 import { isEmpty } from 'lodash';
 type NFTouponPayload = {
@@ -22,6 +22,8 @@ type NFTouponPayload = {
   imageUrl: string;
   description: string;
   status: string;
+  cryptoWalletAddress: string;
+  tokenId: string;
 }[];
 interface ResponsePayload {
   uuid: string;
@@ -36,13 +38,23 @@ interface ResponsePayload {
 export const Arbiter = () => {
   // NFToupon_Key = 'Accepted';
 
+  const [transactionType, setTransactionType] = React.useState('');
   const [data, setData] = React.useState<NFTouponPayload>([]);
+  const [lockParameter, setLockParameter] = React.useState(true);
   const [refreshState, setRefershState] = React.useState();
   const [details, setDetails] = React.useState({
     id: 0,
     title: '',
     description: '',
     imageUrl: '',
+    status: '',
+    cryptoWalletAddress: '',
+    tokenId: '',
+  });
+  const [sendProperties, setSendProperties] = React.useState({
+    expiryDate: '',
+    offer: '',
+    cryptoWalletAddress: '',
     status: '',
   });
   const [xummPayload, setXummPayload] =
@@ -72,6 +84,7 @@ export const Arbiter = () => {
       console.log('error ', error);
     }
   };
+
   const closeSocket = (ws: WebSocket) => {
     ws.close();
     setXummPayload(null);
@@ -81,23 +94,23 @@ export const Arbiter = () => {
   useEffect(() => {
     if (!isEmpty(xummPayload)) {
       const wsURL = xummPayload?.refs?.websocket_status;
-      const ws = new WebSocket(wsURL || "");
+      const ws = new WebSocket(wsURL || '');
       ws.onmessage = (event) => {
         const { opened, payload_uuidv4, signed, expired } = JSON.parse(
           event.data
         );
         if (opened) {
+          // setLockParameter(false);
         } else if (expired) {
           closeSocket(ws);
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
         } else if (signed) {
-          // setLockParameter(false);
-          fetch(`https://eatozee-crypto.app/api/nftoupon/creator/payload`, {
-            method: "POST",
+          fetch(`https://eatozee-crypto.app/api/nftoupon/cargo`, {
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
-              "NFToupon-Key": "36feff68-ae2a-46a1-9719-20a3fd5e633d",
+              'Content-Type': 'application/json',
+              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
             },
             body: JSON.stringify({
               payload_uuidv4,
@@ -107,13 +120,69 @@ export const Arbiter = () => {
             .then((json) => {
               console.log(json);
               setWalletAddress(json.payload);
+              setTransactionType(json.tx_type);
+              setLockParameter(false);
               closeSocket(ws);
             })
-            .catch((err) => console.error("error: " + err));
+            .catch((err) => console.error('error: ' + err));
         }
       };
     }
-  },[xummPayload]);
+  }, [xummPayload]);
+
+  useEffect(() => {
+    if (transactionType === 'NFTokenCreateOffer') {
+      const update = async () => {
+        const response = await fetch(
+          'https://eatozee-crypto.app/api/nftoupon/merchant/update',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+            },
+            body: JSON.stringify({
+              id: details.id,
+              status: sendProperties.status,
+              date: sendProperties.expiryDate,
+              offer: sendProperties.offer,
+              merchantCryptoWalletAddress: walletAddress,
+              transactionType,
+              tokenId: details.tokenId,
+            }),
+          }
+        );
+
+        const { nftoupons } = await response.json();
+        console.log(nftoupons);
+      };
+      update();
+    }
+  }, [transactionType]);
+
+  const rejectHandler = async () => {
+    const response = await fetch(
+      'https://eatozee-crypto.app/api/nftoupon/merchant/update',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+        },
+        body: JSON.stringify({
+          id: details.id,
+          status: 'Rejected',
+          date: '',
+          offer: '',
+          merchantCryptoWalletAddress: walletAddress,
+          transactionType: '',
+        }),
+      }
+    );
+
+    const { nftoupons } = await response.json();
+    console.log(nftoupons);
+  };
 
   useEffect(() => {
     const getDetails = async () => {
@@ -137,6 +206,8 @@ export const Arbiter = () => {
             description: nftoupons[0].description,
             imageUrl: nftoupons[0].imageUrl,
             status: nftoupons[0].status,
+            tokenId: nftoupons[0].tokenId,
+            cryptoWalletAddress: nftoupons[0].cryptoWalletAddress,
           });
       } catch (error) {
         console.log('error', error);
@@ -150,11 +221,12 @@ export const Arbiter = () => {
     status: string;
     expiryDate: string;
     offer: string;
+    cryptoWalletAddress: string;
+    tokenId: string;
   }) => {
     try {
-      console.log(sendDetails);
       const response = await fetch(
-        'https://eatozee-crypto.app/api/nftoupon/merchant/update',
+        'https://eatozee-crypto.app/api/nftoupon/offer/buy',
         {
           method: 'POST',
           headers: {
@@ -162,17 +234,29 @@ export const Arbiter = () => {
             'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
           },
           body: JSON.stringify({
-            id: sendDetails.id,
-            status: sendDetails.status,
-            date: sendDetails.expiryDate,
             offer: sendDetails.offer,
-            merchantCryptoWalledAddress: walletAddress,
+            merchantCryptoWalletAddress: walletAddress,
+            address: sendDetails.cryptoWalletAddress,
+            tokenId: sendDetails.tokenId,
           }),
         }
       );
-      const getStatus = await response.json();
-      setRefershState(getStatus);
-      console.log(getStatus);
+      // const getStatus = await response.json();
+      // setRefershState(getStatus);
+      // console.log(getStatus);
+      const { payload } = await response.json();
+      if (!isEmpty(payload)) {
+        setSendProperties({
+          status: sendDetails.status,
+          expiryDate: sendDetails.expiryDate,
+          offer: sendDetails.offer,
+          cryptoWalletAddress: sendDetails.cryptoWalletAddress,
+        });
+        setXummPayload(payload);
+        setVisible(true);
+      } else {
+        setXummPayload(null);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -206,23 +290,41 @@ export const Arbiter = () => {
         <Card.Header>
           <Row align="center" justify="space-between">
             <Row align="center" gap={0} justify="flex-end">
-              {/* <Text
-                css={{
-                  textGradient: '45deg, $blue500 -20%, $pink500 50%',
-                }}
-                b
-                size={18}
-              >
-                20k
-              </Text> */}
-              <Button
-                auto
-                light
-                color="primary"
-                onClick={connectWallet}
-                css={{ pr: '7px', pl: '10px' }}
-                icon={<Wallet />}
-              />
+              {isEmpty(walletAddress) ? (
+                <Button
+                  auto
+                  light
+                  color="primary"
+                  onClick={connectWallet}
+                  css={{ pr: '7px', pl: '10px' }}
+                  icon={<Wallet />}
+                />
+              ) : (
+                <>
+                  <Button
+                    light
+                    color="error"
+                    onClick={() => {
+                      setWalletAddress('');
+                      setLockParameter(true);
+                    }}
+                    iconRight={<CloseSquare set={'bulk'} />}
+                  >
+                    <Text
+                      size={12}
+                      b
+                      color="error"
+                      css={{
+                        width: '75%',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {walletAddress}
+                    </Text>
+                  </Button>
+                </>
+              )}
             </Row>
 
             <Modal
@@ -232,21 +334,22 @@ export const Arbiter = () => {
               onClose={closeHandler}
             >
               <Modal.Header>
-                <Text id="modal-title" size={18}>
+                {/* <Text id="modal-title" size={18}>
                   Scan the QR Code
-                </Text>
+                </Text> */}
               </Modal.Header>
               <Modal.Body>
                 {!isEmpty(xummPayload) ? (
-            <Image
-              width="100%"
-              height="100%"
-              src="{xummPayload?.refs?.qr_png}"
-              alt="qr_code"
-            />
-          ) : (
-            <div>Something went wrong</div>
-          )}</Modal.Body>
+                  <Image
+                    width="100%"
+                    height="100%"
+                    src={xummPayload?.refs?.qr_png || ''}
+                    alt="qr_code"
+                  />
+                ) : (
+                  <div>Something went wrong</div>
+                )}
+              </Modal.Body>
               <Modal.Footer>
                 <Button auto flat color="primary" onClick={closeHandler}>
                   Close
@@ -265,10 +368,15 @@ export const Arbiter = () => {
               imageUrl={details.imageUrl}
               title={details.title}
               status={details.status}
+              cryptoWalletAddress={details.cryptoWalletAddress}
+              tokenId={details.tokenId}
               onClick={(details) => {
                 sendStatus(details);
               }}
-              acceptBtnText="Accept"
+              rejectHandler={() => {
+                rejectHandler();
+              }}
+              lockParameter={lockParameter}
             />
           ) : (
             <div>No data Found</div>
@@ -294,6 +402,8 @@ export const Arbiter = () => {
                           description: post.description || '',
                           imageUrl: post.imageUrl || '',
                           status: post.status || '',
+                          cryptoWalletAddress: post.cryptoWalletAddress || '',
+                          tokenId: post.tokenId || '',
                         })
                       }
                       size="xl"

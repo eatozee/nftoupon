@@ -5,7 +5,6 @@ import {
   Textarea,
   Row,
   Button,
-  Col,
 } from '@nextui-org/react';
 import React from 'react';
 
@@ -20,21 +19,29 @@ type Details = {
     status: string;
     expiryDate: string;
     offer: string;
+    cryptoWalletAddress: string;
+    tokenId: string;
   }) => void;
-  acceptBtnText: string;
-  readOnlyForCreator?: boolean;
+  lockParameter: boolean;
+  cryptoWalletAddress: string;
+    tokenId: string;
+    rejectHandler: () => void;
 };
 
 export const CouponDetails = (props: Details) => {
-  let date: string, offer: string;  
+  let date: string, offer: string;
+  console.log("Inside couponDetails component    ",props);
   const clickEvent = (status: string) => {
     // do something status = Accept or reject
     const data = {
       id: props.id,
       status: status,
-      expiryDate: date, 
+      expiryDate: date,
       offer: offer,
+      cryptoWalletAddress: props.cryptoWalletAddress,
+      tokenId: props.tokenId,
     };
+    console.log("We are inside click event    ",data);
     props.onClick(data);
   };
 
@@ -63,37 +70,42 @@ export const CouponDetails = (props: Details) => {
         min={1}
         width="100%"
         initialValue={'1'}
-        onChange = {(e)=> {offer = e.target.value}}
+        onChange={(e) => {
+          offer = e.target.value;
+        }}
+        readOnly={props.lockParameter}
       />
       <Spacer y={0.5} />
       <Input
-        readOnly={props.readOnlyForCreator}
+        readOnly={props.lockParameter}
         width="100%"
         required
-        label="Date"
+        label="Expiry Date"
         type="date"
-        onChange = {(e)=> {date = e.target.value}}
+        onChange={(e) => {
+          date = e.target.value;
+        }}
       />
       <Spacer y={0.8} />
-      <Row>
-            <Col>
-              <Button
-                onClick={() => clickEvent('Accepted')}
-                css={{ height: '40px'}}
-                color="success"
-              >
-                {props.acceptBtnText}
-              </Button>
-            </Col>
-            <Col >
-              <Button
-                css={{ height: '40px'}}
-                color="error"
-                onClick={() => clickEvent('Rejected')}
-              >
-                Reject
-              </Button>
-            </Col>
+      <Row justify="space-around">
+        <Button
+          css={{ height: '40px' }}
+          color="success"
+          onClick={() => clickEvent('Accepted')}
+          size="xs"
+          disabled={props.lockParameter}
+        >
+          Offer
+        </Button>
+        <Button
+          css={{ height: '40px' }}
+          color="error"
+          onClick={props.rejectHandler}
+          size="xs"
+          disabled={props.lockParameter}
+        >
+          Reject
+        </Button>
       </Row>
     </>
   );
