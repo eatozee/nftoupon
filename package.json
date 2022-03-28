@@ -42,11 +42,11 @@
   "size-limit": [
     {
       "path": "dist/nftoupon.cjs.production.min.js",
-      "limit": "10 KB"
+      "limit": "1024 KB"
     },
     {
       "path": "dist/nftoupon.esm.js",
-      "limit": "10 KB"
+      "limit": "1024 KB"
     }
   ],
   "devDependencies": {
@@ -71,10 +71,10 @@
     "typescript": "^4.6.2"
   },
   "dependencies": {
-    "@nextui-org/react": "^1.0.2-beta.4",
-    "react-iconly": "^2.2.5",
-    "react-icons": "^4.3.1",
+    "@nextui-org/react": "1.0.2-beta.4",
     "lodash": "^4.17.21",
-    "lodash-es": "^4.17.19"
+    "lodash-es": "^4.17.21",
+    "react-iconly": "^2.2.5",
+    "react-icons": "^4.3.1"
   }
 }

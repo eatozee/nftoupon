@@ -14,7 +14,7 @@ import {
 } from '@nextui-org/react';
 import { Send } from 'react-iconly';
 import { BiSun, BiMoon } from 'react-icons/bi';
-import isEmpty from 'lodash/isEmpty';
+// import isEmpty from 'lodash/isEmpty';
 
 const myDarkTheme = createTheme({
   type: 'dark',
@@ -55,15 +55,15 @@ export const Creator = () => {
       const { payload, error }: ResponsePayload = await response.json();
       console.log({ payload, error });
 
-      if (!isEmpty(payload)) {
-        const wsURL = payload.refs.websocket_status;
-        const ws = new WebSocket(wsURL);
-        ws.onmessage = (event) => {
-          console.log(event.data);
-        };
-      } else {
-        console.log(error);
-      }
+      // if (!isEmpty(payload)) {
+      //   const wsURL = payload.refs.websocket_status;
+      //   const ws = new WebSocket(wsURL);
+      //   ws.onmessage = (event) => {
+      //     console.log(event.data);
+      //   };
+      // } else {
+      //   console.log(error);
+      // }
     } catch (error) {
       console.log('error ', error);
     }
