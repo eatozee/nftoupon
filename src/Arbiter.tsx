@@ -41,7 +41,7 @@ export const Arbiter = () => {
   const [transactionType, setTransactionType] = React.useState('');
   const [data, setData] = React.useState<NFTouponPayload>([]);
   const [lockParameter, setLockParameter] = React.useState(true);
-  const [refreshState, setRefershState] = React.useState();
+  // const [refreshState, setRefershState] = React.useState();
   const [details, setDetails] = React.useState({
     id: 0,
     title: '',
@@ -214,7 +214,7 @@ export const Arbiter = () => {
       }
     };
     getDetails();
-  }, [refreshState]);
+  }, []);
 
   const sendStatus = async (sendDetails: {
     id: number;
