@@ -17,12 +17,8 @@ import {
 import isEmpty from 'lodash/isEmpty';
 import { Send, ChevronLeft } from 'react-iconly';
 import { CardHeader } from './components/CardHeader';
-interface CreatorProps {
-  xummConfig: {
-    XUMM_APIKEY: String;
-    XUMM_APISECRET: String;
-  };
-}
+import confetti from 'canvas-confetti';
+
 
 interface ResponsePayload {
   uuid: string;
@@ -30,11 +26,9 @@ interface ResponsePayload {
     qr_png: string;
     websocket_status: string;
   };
+  imageUrl: string;
 }
-type CreatorInput= {
-  title: string;
-  description: string;
-}
+
 
 type NFTouponPayload = {
   id: number;
@@ -42,14 +36,16 @@ type NFTouponPayload = {
   imageUrl: string;
   description: string;
   status: string;
+  merchantCryptoWalletAddress: string;
 }[];
+
 
 
 
 export const Creator = () => {
   const [visible, setVisible] = React.useState(false);
   const closeHandler = () => setVisible(false);
-  const [Details, setDetails] = React.useState({
+  const [details, setDetails] = React.useState({
     id: 0,
     title: '',
     description: '',
@@ -57,11 +53,14 @@ export const Creator = () => {
     status: '',
     offer:'',
     date:'',
+    tokenOfferIndex:'',
+    merchantCryptoWalletAddress:'',
     visibility: false,
   });
   const [xummPayload, setXummPayload] =
     React.useState<ResponsePayload | null>(null);
   const [walletAddress, setWalletAddress] = React.useState<string>("");
+  const [transactionType, setTransactionType] = React.useState<string>("");
 
   const [sendButtonDisabled, setSendButtonDisabled] = React.useState(true);
   const [data, setData] = React.useState<NFTouponPayload>([]);
@@ -69,7 +68,14 @@ export const Creator = () => {
   const [src, setSrc] = React.useState<any>(""); // initial src will be empty
   const [inputValue, setInputValue] = React.useState<string>(""); //storing title input
   const [textAreaValue, setTextAreaValue] = React.useState<string>(""); //storing description input
-  
+  const handleConfetti = () => {
+    confetti({
+      zIndex: 999,
+      particleCount: 1000,
+      spread: 180,
+      origin: { y: 0.5 }
+    });
+  };
 
   const uploadFile = (event: any) => {
  
@@ -77,8 +83,6 @@ export const Creator = () => {
     reader.onload = async function(){
       const binaryData: any = reader.result;
       const byteString = atob(binaryData.split(',')[1]);
-      const mimeString = binaryData.split(',')[0].split(':')[1].split(';')[0];
-      console.log({byteString, mimeString})
       setSrc(byteString);  
   }
   reader.readAsDataURL(event.target.files[0]);
@@ -96,9 +100,35 @@ export const Creator = () => {
     setCurrentPage(page);
   };
 
-  const sendDetails = async () => {
-      const response = await fetch(
-        `http://localhost:3000/api/nftoupon/meta`,
+  const acceptOffer = async () => {
+    const response = await fetch(
+      `https://eatozee-crypto.app/api/nftoupon/offer/accept`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+        },
+        body: JSON.stringify({
+          tokenOfferIndex: details.tokenOfferIndex,
+          address: walletAddress,
+        }),
+      }
+    );
+    const { payload } = await response.json();
+
+    if (!isEmpty(payload)) {
+      setXummPayload(payload);
+      setVisible(true);
+    } else {
+      setXummPayload(null);
+    }
+  }
+
+  const rejectOffer = async () => {
+
+       await fetch(
+        'https://eatozee-crypto.app/api/nftoupon/creator/update',
         {
           method: 'POST',
           headers: {
@@ -106,16 +136,38 @@ export const Creator = () => {
             'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
           },
           body: JSON.stringify({
-            title: inputValue,
-            description: textAreaValue,
-            file: src,
-            address: 'abcdefghijkl',
-            status: 'Pending',
+            status: 'Declined',
+            id: details.id,
           }),
         }
       );
-      const result = await response.json();
-      console.log(result);
+  }
+
+
+
+  const sendDetails = async () => {
+      const response = await fetch(
+        `https://eatozee-crypto.app/api/nftoupon/creator/mint`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          },
+          body: JSON.stringify({
+            file: src,
+            address: walletAddress,
+          }),
+        }
+      );
+      const { payload } = await response.json();
+
+      if (!isEmpty(payload)) {
+        setXummPayload(payload);
+        setVisible(true);
+      } else {
+        setXummPayload(null);
+      }
     }
 
   const connectWallet = async () => {
@@ -166,9 +218,7 @@ export const Creator = () => {
             }),
           }
         );
-        console.log('wallet address  ',  walletAddress);
         const {nftoupons} = await respose.json();
-        console.log(nftoupons) ;
         setData(nftoupons);
 
       } catch (error) {
@@ -189,14 +239,12 @@ export const Creator = () => {
           event.data
         );
         if (opened) {
-          setSendButtonDisabled(false);
         } else if (expired) {
           closeSocket(ws);
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
         } else if (signed) {
-
-          fetch(`https://eatozee-crypto.app/api/nftoupon/creator/payload`, {
+          fetch(`https://eatozee-crypto.app/api/nftoupon/cargo`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -208,8 +256,9 @@ export const Creator = () => {
           })
             .then((res) => res.json())
             .then((json) => {
-              console.log(json);
               setWalletAddress(json.payload);
+              setSendButtonDisabled(false);
+              setTransactionType(json.tx_type);
               closeSocket(ws);
             })
             .catch((err) => console.error('error:' + err));
@@ -217,12 +266,63 @@ export const Creator = () => {
       };
     }
   },[xummPayload]);
+
+  useEffect(() => {
+    if(transactionType === "NFTokenMint"){
+      const saveTokens = async () => {
+       await fetch(
+        'https://eatozee-crypto.app/api/nftoupon/creator/saveTokens',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          },
+          body: JSON.stringify({
+            address: walletAddress,
+            title: inputValue,
+            description: textAreaValue,
+            status: 'Pending',
+            imageUrl: xummPayload?.imageUrl,
+          }),
+        }
+      );
+    }
+    saveTokens()
+    handleConfetti()
+  }else if(transactionType === "NFTokenAcceptOffer"){
+    const updateTokenStatus = async () => {
+    await fetch(
+      'https://eatozee-crypto.app/api/nftoupon/creator/update',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+        },
+        body: JSON.stringify({
+          status: 'Created',
+          id: details.id,
+        }),
+      }
+    );
+  }
+  updateTokenStatus()
+  }
+    
+  },[transactionType]);
+
   return (
     <NextUIProvider>
-      <Card css={{ mw: '300px', mh: '650px' }}>
+      <Card css={{
+          minHeight: '500px',
+          minW: '330px',
+          maxW: '400px',
+          maxH: '650px',
+        }}>
         <Card.Header>
           <Row justify="space-between" align="center">
-            {Details.visibility ? (
+            {details.visibility ? (
               <Button
                 auto
                 size={'sm'}
@@ -236,6 +336,8 @@ export const Creator = () => {
                     status: '',
                     offer:'',
                     date:'',
+                    tokenOfferIndex:'',
+                    merchantCryptoWalletAddress:'',
                     visibility: false,
                   })
                 }
@@ -245,6 +347,7 @@ export const Creator = () => {
             ) : null}
 
             <CardHeader
+              walletAddress={walletAddress}
               closeHandler={closeHandler}
               visible={visible}
               connectWallet={connectWallet}
@@ -254,12 +357,12 @@ export const Creator = () => {
         </Card.Header>
         <Divider />
         <Card.Body css={{ py: '$10' }}>
-          {Details.visibility ? (
+          {details.visibility ? (
             <>
               <Container display="flex" justify="center" fluid>
                 <img
                   height="180px"
-                  src={Details.imageUrl}
+                  src={details.imageUrl}
                   alt="Creator's NFT image"
                 />
               </Container>
@@ -268,14 +371,14 @@ export const Creator = () => {
                 readOnly
                 width="100%"
                 label="Title"
-                initialValue={Details.title}
+                initialValue={details.title}
               />
               <Spacer y={0.5} />
               <Textarea
                 readOnly
                 width="100%"
                 label="Description"
-                initialValue={Details.description}
+                initialValue={details.description}
                 maxRows={4}
               />
               <Spacer y={0.5} />
@@ -289,21 +392,37 @@ export const Creator = () => {
                     type="number"
                     labelRight="XRP"
                     min={1}
-                    initialValue={Details.offer}
+                    initialValue={details.offer}
                   />
                   <Spacer y={0.5} />
-                  <Input readOnly initialValue={Details.date} width="100%" required label="Date" />
+                  <Input readOnly initialValue={details.date} width="100%" required label="Date" />
                 </Row>
               </Grid.Container>
               <Spacer y={0.8} />
+              
               <Row justify="space-around">
-                <Button size="xs" color="success" css={{ height: '40px' }}>
-                  Generate NFToupon
+              {details.status === "Pending" ? (
+                <>
+              <Button size="sm" color="success" css={{ height: '40px' }} disabled>
+                  Accept
                 </Button>
                 <Spacer y={0.5} />
-                <Button size="xs" color="error" css={{ height: '40px' }}>
+                <Button size="sm" color="error" css={{ height: '40px' }} disabled>
                   Reject
                 </Button>
+                </>
+                ) : (
+                   <>
+                  <Button size="xs" color="success" css={{ height: '40px' }} onClick={acceptOffer} >
+                      Accept
+                    </Button>
+                    <Spacer y={0.5} />
+                    <Button size="xs" color="error" css={{ height: '40px' }} onClick={rejectOffer}>
+                      Reject
+                    </Button>
+                    </>
+                    )}
+                
               </Row>
             </>
           ) : (
@@ -338,12 +457,14 @@ export const Creator = () => {
         </Card.Body>
         <Divider />
 
-        {Details.visibility ? null : (
+        {details.visibility ? null : (
 
           <>
             
             <Spacer y={0.5} />
-            {data.length > 0 && ( <Grid.Container gap={1} justify="center">
+            {data.length > 0 && ( 
+              <>
+            <Grid.Container gap={1} justify="center">
               <Row justify="center">
                 {currentPosts.map((post: any) => (
                   <Grid  lg={3}>
@@ -360,6 +481,8 @@ export const Creator = () => {
                           status: post.status,
                           offer:  post.offer,
                           date:post.date,
+                          tokenOfferIndex: post.tokenOfferIndex,
+                          merchantCryptoWalletAddress: post.merchantCryptoWalletAddress,
                           visibility: true,
                         })
                       }
@@ -382,8 +505,11 @@ export const Creator = () => {
                   onChange={changePage}
                 />
               </Row>
-            </Grid.Container>)}
-            <Divider />
+            </Grid.Container>
+            <Divider/>
+            </>
+            )}
+           
           </>
         )}
 
