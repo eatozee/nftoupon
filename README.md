@@ -37,6 +37,12 @@ function Example() {
 }
 ```
 
+## Demo Videos
+
+1. https://www.youtube.com/watch?v=rcRr2Z4MXC0
+2. https://www.youtube.com/watch?v=s-01b1TpxJI
+
+
 _Note: You will then require a `NFToupon-KEY` to use it in your project build. You can contact `admin@eatozee.com` to get your unique `NFToupon-KEY`. _
 
 
