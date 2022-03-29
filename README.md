@@ -18,7 +18,7 @@ You will require a unique `NFToupon-KEY` to use it in your project build. You ca
 
 To start using the components, please follow these steps:
 
-1. Wrap your application with the `Creator` & `Arbiter` provided by
+1. Wrap your application with the `Creator` & `Arbiter` componenets provided by
    **nftoupon**.
 
 ```jsx
@@ -28,11 +28,12 @@ import { Creator, Arbiter } from "nftoupon";
 2. Now you can start using components like so!:
 
 ```jsx
-import { Creator } from "nftoupon";
+import { Creator, Arbiter } from "nftoupon";
 
 function Example() {
   return 
   <Creator NFToupon-KEY="abcxyz"/>
+  <Arbiter NFToupon-KEY="abcxyz"/>
 }
 ```
 
