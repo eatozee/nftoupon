@@ -32,13 +32,6 @@ Integrate nftoupon widget with www.eatozee.com, https://admin.eatozee.com/#/logi
 1) Nftoupon widget to eatozee products
 2) Get feedback from user and clients (right now eatozee has 5 merchant)
 
-## Private beta test (Month 6)
-Description:
-Upgrading nftoupon widget 
-
-1) AI to identify the Object (i.e. user will not be able to create the NFTs if it is already created or it is a bad/abusive image)
-2) real time streaming
-
 
 ## Internal Organization Test (Month 5)
 
@@ -47,6 +40,8 @@ Nftoupon widget compatability and smart contract checker implementation
 
 1) Make nftoupon compatible with multiple platform (right now supporting to react ecosystem)
 2) Smart contract to verify the coupon apply
+3) AI to identify the Object (i.e. user will not be able to create the NFTs if it is already created or it is a bad/abusive image)
+4) real time streaming
 
 ## Internal Organization Test (Month 6)
 
