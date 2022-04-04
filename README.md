@@ -6,6 +6,10 @@
 
 Widget will help you to generate NFTs on XRPL which in turn you can use as coupons, which we call NFToupons
 
+## Milestone
+
+[NFToupon milestone](https://github.com/eatozee/nftoupon/blob/master/MILESTONE.md)
+
 ## Installing NFToupon
 
 You can install this module as a component from NPM:
