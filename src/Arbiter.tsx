@@ -14,8 +14,9 @@ import {
   Image,
 } from '@nextui-org/react';
 import { Wallet, CloseSquare } from 'react-iconly';
-import { CouponDetails } from './components/CouponDetails';
-import { isEmpty } from 'lodash';
+import { Details } from './components/Details';
+import isEmpty from 'lodash/isEmpty';
+
 type NFTouponPayload = {
   id: number;
   title: string;
@@ -35,11 +36,11 @@ interface ResponsePayload {
 type Props = {
   NFToupon_Key: string;
 };
-export const Arbiter = ({NFToupon_Key}: Props) => {
+
+export const Arbiter = ({ NFToupon_Key }: Props) => {
   const [transactionType, setTransactionType] = React.useState('');
   const [data, setData] = React.useState<NFTouponPayload>([]);
   const [lockParameter, setLockParameter] = React.useState(true);
-  // const [refreshState, setRefershState] = React.useState();
   const [details, setDetails] = React.useState({
     id: 0,
     title: '',
@@ -58,8 +59,21 @@ export const Arbiter = ({NFToupon_Key}: Props) => {
   const [xummPayload, setXummPayload] =
     React.useState<ResponsePayload | null>(null);
   const [walletAddress, setWalletAddress] = React.useState<string>('');
+  const [visible, setVisible] = React.useState(false);
+  const closeHandler = () => {
+    setVisible(false);
+  };
+
+  //Logic for data in pagination where '4' is the data per page
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const indexOfLastPost = currentPage * 4;
+  const indexOfFirstPost = indexOfLastPost - 4;
+  const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
+  const changePage = (page: number) => {
+    setCurrentPage(page);
+  };
+
   const connectWallet = async () => {
-    // just a placeholder will change with the real one
     try {
       const response = await fetch(
         `https://eatozee-crypto.app/api/nftoupon/connect`,
@@ -125,54 +139,48 @@ export const Arbiter = ({NFToupon_Key}: Props) => {
         }
       };
     }
-  }, [xummPayload]);
+  }, [xummPayload, NFToupon_Key]);
 
   useEffect(() => {
     if (transactionType === 'NFTokenCreateOffer') {
       const update = async () => {
-         await fetch(
-          'https://eatozee-crypto.app/api/nftoupon/merchant/update',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
-            },
-            body: JSON.stringify({
-              id: details.id,
-              status: sendProperties.status,
-              date: sendProperties.expiryDate,
-              offer: sendProperties.offer,
-              merchantCryptoWalletAddress: walletAddress,
-              transactionType,
-              tokenId: details.tokenId,
-            }),
-          }
-        );
+        await fetch('https://eatozee-crypto.app/api/nftoupon/merchant/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'NFToupon-Key': NFToupon_Key,
+          },
+          body: JSON.stringify({
+            id: details.id,
+            status: sendProperties.status,
+            date: sendProperties.expiryDate,
+            offer: sendProperties.offer,
+            merchantCryptoWalletAddress: walletAddress,
+            transactionType,
+            tokenId: details.tokenId,
+          }),
+        });
       };
       update();
     }
-  }, [transactionType]);
+  }, [transactionType, NFToupon_Key, details, sendProperties, walletAddress]);
 
   const rejectHandler = async () => {
-     await fetch(
-      'https://eatozee-crypto.app/api/nftoupon/merchant/update',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'NFToupon-Key': NFToupon_Key,
-        },
-        body: JSON.stringify({
-          id: details.id,
-          status: 'Rejected',
-          date: '',
-          offer: '',
-          merchantCryptoWalletAddress: walletAddress,
-          transactionType: '',
-        }),
-      }
-    );
+    await fetch('https://eatozee-crypto.app/api/nftoupon/merchant/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'NFToupon-Key': NFToupon_Key,
+      },
+      body: JSON.stringify({
+        id: details.id,
+        status: 'Rejected',
+        date: '',
+        offer: '',
+        merchantCryptoWalletAddress: walletAddress,
+        transactionType: '',
+      }),
+    });
   };
 
   useEffect(() => {
@@ -205,7 +213,7 @@ export const Arbiter = ({NFToupon_Key}: Props) => {
       }
     };
     getDetails();
-  }, []);
+  }, [transactionType, NFToupon_Key]);
 
   const sendStatus = async (sendDetails: {
     id: number;
@@ -232,9 +240,7 @@ export const Arbiter = ({NFToupon_Key}: Props) => {
           }),
         }
       );
-      // const getStatus = await response.json();
-      // setRefershState(getStatus);
-      // console.log(getStatus);
+
       const { payload } = await response.json();
       if (!isEmpty(payload)) {
         setSendProperties({
@@ -253,29 +259,11 @@ export const Arbiter = ({NFToupon_Key}: Props) => {
     }
   };
 
-  const [visible, setVisible] = React.useState(false);
-  const closeHandler = () => {
-    setVisible(false);
-  };
-  // const [lockParameter, setLockParameter] = React.useState(true);
-
-  //Logic for data in pagination where '4' is the data per page
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const indexOfLastPost = currentPage * 4;
-  const indexOfFirstPost = indexOfLastPost - 4;
-  const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
-  const changePage = (page: number) => {
-    setCurrentPage(page);
-  };
-
   return (
     <NextUIProvider>
       <Card
         css={{
-          minHeight: '500px',
-          minW: '330px',
-          maxW: '400px',
-          maxH: '650px',
+          width: '400px',
         }}
       >
         <Card.Header>
@@ -292,8 +280,8 @@ export const Arbiter = ({NFToupon_Key}: Props) => {
                 />
               ) : (
                 <>
-                  <Row justify='flex-end' align='center'>
-                  <Text
+                  <Row justify="flex-end" align="center">
+                    <Text
                       size={12}
                       b
                       color="error"
@@ -326,11 +314,6 @@ export const Arbiter = ({NFToupon_Key}: Props) => {
               open={visible}
               onClose={closeHandler}
             >
-              <Modal.Header>
-                {/* <Text id="modal-title" size={18}>
-                  Scan the QR Code
-                </Text> */}
-              </Modal.Header>
               <Modal.Body>
                 {!isEmpty(xummPayload) ? (
                   <Image
@@ -355,7 +338,7 @@ export const Arbiter = ({NFToupon_Key}: Props) => {
         <Card.Body css={{ py: '$10', alignItems: 'center' }}>
           {/* Coupon details for Arbiter */}
           {data.length > 0 ? (
-            <CouponDetails
+            <Details
               id={details.id}
               description={details.description}
               imageUrl={details.imageUrl}
@@ -388,6 +371,7 @@ export const Arbiter = ({NFToupon_Key}: Props) => {
                       zoomed
                       pointer
                       squared
+                      bordered
                       onClick={() =>
                         setDetails({
                           id: post.id || 0,
@@ -422,7 +406,7 @@ export const Arbiter = ({NFToupon_Key}: Props) => {
         )}
 
         <Card.Footer css={{ justifyContent: 'center' }}>
-          <Text>© {`${new Date().getFullYear()}`} eatozee</Text>
+          <Text size={12}>Widget by eatozee</Text>
         </Card.Footer>
       </Card>
     </NextUIProvider>

@@ -42,11 +42,11 @@
   "size-limit": [
     {
       "path": "dist/nftoupon.cjs.production.min.js",
-      "limit": "1024 KB"
+      "limit": "100 KB"
     },
     {
       "path": "dist/nftoupon.esm.js",
-      "limit": "1024 KB"
+      "limit": "100 KB"
     }
   ],
   "devDependencies": {

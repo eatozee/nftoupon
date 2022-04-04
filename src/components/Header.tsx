@@ -1,5 +1,5 @@
 import { Button, Modal, Row, Image } from '@nextui-org/react';
-import  isEmpty from 'lodash/isEmpty';
+import isEmpty from 'lodash/isEmpty';
 import React from 'react';
 import { Wallet } from 'react-iconly';
 
@@ -19,7 +19,7 @@ type prop = {
   xummPayload: ResponsePayload | null;
 };
 
-export const CardHeader = (props: prop) => {
+export const Header = (props: prop) => {
   return (
     <>
       <Row align="center" gap={0} justify="flex-end">
@@ -31,9 +31,7 @@ export const CardHeader = (props: prop) => {
           onClick={props.connectWallet}
           icon={<Wallet />}
         />
-        
       </Row>
-      
 
       <Modal
         closeButton
@@ -46,7 +44,7 @@ export const CardHeader = (props: prop) => {
             <Image
               width="100%"
               height="100%"
-              src={props.xummPayload?.refs?.qr_png ||  ""}
+              src={props.xummPayload?.refs?.qr_png || ''}
               alt="qr_code"
             />
           ) : (

@@ -36,7 +36,7 @@ export const Collectibles = ({ NFToupon_Key }: Props) => {
     };
 
     getDetails();
-  }, []);
+  }, [NFToupon_Key]);
 
   return (
     <NextUIProvider>
