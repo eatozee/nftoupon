@@ -57,9 +57,7 @@ export const Collectibles = ({ NFToupon_Key }: Props) => {
                 <Card.Footer>
                   <Row wrap="wrap" justify="space-between">
                     <Text b>{item.title}</Text>
-                    <Text css={{ color: '$accents4', fontWeight: '$semibold' }}>
-                      {item.offer}
-                    </Text>
+                    <Text b>{item.offer}</Text>
                   </Row>
                 </Card.Footer>
               </Card>
