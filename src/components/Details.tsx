@@ -19,11 +19,11 @@ type Details = {
     status: string;
     expiryDate: string;
     offer: string;
-    cryptoWalletAddress: string;
+    merchantCryptoWalletAddress: string;
     tokenId: string;
   }) => void;
   lockParameter: boolean;
-  cryptoWalletAddress: string;
+  merchantCryptoWalletAddress: string;
   tokenId: string;
   rejectHandler: () => void;
 };
@@ -36,7 +36,7 @@ export const Details = (props: Details) => {
       status: status,
       expiryDate: date,
       offer: offer,
-      cryptoWalletAddress: props.cryptoWalletAddress,
+      merchantCryptoWalletAddress: props.merchantCryptoWalletAddress,
       tokenId: props.tokenId,
     };
     props.onClick(data);

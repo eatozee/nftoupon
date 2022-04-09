@@ -16,26 +16,13 @@ import {
 import { Wallet, CloseSquare } from 'react-iconly';
 import { Details } from './components/Details';
 import isEmpty from 'lodash/isEmpty';
-
-type NFTouponPayload = {
-  id: number;
-  title: string;
-  imageUrl: string;
-  description: string;
-  status: string;
-  cryptoWalletAddress: string;
-  tokenId: string;
-}[];
-interface ResponsePayload {
-  uuid: string;
-  refs: {
-    qr_png: string;
-    websocket_status: string;
-  };
-}
-type Props = {
-  NFToupon_Key: string;
-};
+import {
+  NFTouponPayload,
+  ResponsePayload,
+  Props,
+} from './common/Types';
+import { fetchCollectWallet } from './common/helper/fetchConnectWallet';
+import { handleTransaction } from './common/helper/handleTransaction';
 
 export const Arbiter = ({ NFToupon_Key }: Props) => {
   const [transactionType, setTransactionType] = React.useState('');
@@ -75,17 +62,9 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
 
   const connectWallet = async () => {
     try {
-      const response = await fetch(
-        `https://eatozee-crypto.app/api/nftoupon/connect`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'NFToupon-Key': NFToupon_Key,
-          },
-        }
+      const { payload } = await fetchCollectWallet(
+        NFToupon_Key
       );
-      const { payload } = await response.json();
       if (!isEmpty(payload)) {
         setXummPayload(payload);
         setVisible(true);
@@ -139,31 +118,35 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
         }
       };
     }
-  }, [xummPayload, NFToupon_Key]);
+  }, [
+    xummPayload,
+    //  NFToupon_Key
+  ]);
 
   useEffect(() => {
     if (transactionType === 'NFTokenCreateOffer') {
-      const update = async () => {
-        await fetch('https://eatozee-crypto.app/api/nftoupon/merchant/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'NFToupon-Key': NFToupon_Key,
-          },
-          body: JSON.stringify({
-            id: details.id,
-            status: sendProperties.status,
-            date: sendProperties.expiryDate,
-            offer: sendProperties.offer,
-            merchantCryptoWalletAddress: walletAddress,
-            transactionType,
-            tokenId: details.tokenId,
-          }),
-        });
-      };
-      update();
+      handleTransaction(
+        transactionType,
+        NFToupon_Key,
+        'https://eatozee-crypto.app/api/nftoupon/merchant/update',
+        {
+          id: details.id,
+          status: sendProperties.status,
+          date: sendProperties.expiryDate,
+          offer: sendProperties.offer,
+          merchantMerchantCryptoWalletAddress: walletAddress,
+          transactionType: transactionType,
+          tokenId: details.tokenId,
+        }
+      );
     }
-  }, [transactionType, NFToupon_Key, details, sendProperties, walletAddress]);
+  }, [
+    transactionType,
+    // NFToupon_Key,
+    details,
+    sendProperties,
+    walletAddress,
+  ]);
 
   const rejectHandler = async () => {
     await fetch('https://eatozee-crypto.app/api/nftoupon/merchant/update', {
@@ -213,14 +196,17 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       }
     };
     getDetails();
-  }, [transactionType, NFToupon_Key]);
+  }, [
+    transactionType,
+    // NFToupon_Key
+  ]);
 
   const sendStatus = async (sendDetails: {
     id: number;
     status: string;
     expiryDate: string;
     offer: string;
-    cryptoWalletAddress: string;
+    merchantCryptoWalletAddress: string;
     tokenId: string;
   }) => {
     try {
@@ -235,7 +221,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
           body: JSON.stringify({
             offer: sendDetails.offer,
             merchantCryptoWalletAddress: walletAddress,
-            address: sendDetails.cryptoWalletAddress,
+            address: sendDetails.merchantCryptoWalletAddress,
             tokenId: sendDetails.tokenId,
           }),
         }
@@ -247,7 +233,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
           status: sendDetails.status,
           expiryDate: sendDetails.expiryDate,
           offer: sendDetails.offer,
-          cryptoWalletAddress: sendDetails.cryptoWalletAddress,
+          cryptoWalletAddress: sendDetails.merchantCryptoWalletAddress,
         });
         setXummPayload(payload);
         setVisible(true);
@@ -344,7 +330,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
               imageUrl={details.imageUrl}
               title={details.title}
               status={details.status}
-              cryptoWalletAddress={details.cryptoWalletAddress}
+              merchantCryptoWalletAddress={details.cryptoWalletAddress}
               tokenId={details.tokenId}
               onClick={(details) => {
                 sendStatus(details);
