@@ -3,7 +3,7 @@ import { Meta, Story } from '@storybook/react';
 import { Collectibles } from '../src';
 
 const meta: Meta = {
-  title: 'Components',
+  title: 'Screens/Collectibles',
   component: Collectibles,
   argTypes: {
     children: {

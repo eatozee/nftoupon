@@ -3,7 +3,7 @@ import { Meta, Story } from '@storybook/react';
 import { Arbiter } from '../src';
 
 const meta: Meta = {
-  title: 'Components',
+  title: 'Screens/Arbiter',
   component: Arbiter,
   argTypes: {
     children: {

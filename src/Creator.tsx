@@ -13,11 +13,14 @@ import {
   Grid,
   Container,
   Pagination,
+  Image,
 } from '@nextui-org/react';
 import isEmpty from 'lodash/isEmpty';
 import { Send, ChevronLeft } from 'react-iconly';
 import { Header } from './components/Header';
 import confetti from 'canvas-confetti';
+import { Connect } from './Connect';
+import { Toaster, toast } from 'react-hot-toast';
 interface ResponsePayload {
   uuid: string;
   refs: {
@@ -61,6 +64,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   const [transactionType, setTransactionType] = React.useState<string>('');
 
   const [sendButtonDisabled, setSendButtonDisabled] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [data, setData] = React.useState<NFTouponPayload>([]);
 
   const [src, setSrc] = React.useState<any>(''); // initial src will be empty
@@ -161,6 +165,8 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   };
 
   const connectWallet = async () => {
+    setIsLoading(true);
+
     try {
       const response = await fetch(
         `https://eatozee-crypto.app/api/nftoupon/connect`,
@@ -181,8 +187,10 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         setXummPayload(null);
       }
     } catch (error) {
-      console.log('error ', error);
+      toast.error('Something went wrong.');
     }
+
+    setIsLoading(false);
   };
 
   const closeSocket = (ws: WebSocket) => {
@@ -306,185 +314,208 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 
   return (
     <NextUIProvider>
-      <Card
+      <Container
+        display="flex"
+        justify="center"
         css={{
           minHeight: '500px',
-          minW: '330px',
-          maxW: '400px',
-          maxH: '650px',
+          width: '400px',
         }}
       >
-        <Card.Header>
-          <Row justify="space-between" align="center">
-            {details.visibility ? (
-              <Button
-                auto
-                size={'sm'}
-                css={{ height: '40px', pl: '0px' }}
-                onClick={() =>
-                  setDetails({
-                    id: 0,
-                    title: '',
-                    description: '',
-                    imageUrl: '',
-                    status: '',
-                    offer: '',
-                    date: '',
-                    tokenOfferIndex: '',
-                    merchantCryptoWalletAddress: '',
-                    visibility: false,
-                  })
-                }
-                light
-                icon={<ChevronLeft set="light" />}
-              />
-            ) : null}
+        <Toaster
+          containerStyle={{
+            marginTop: '20px',
+            position: 'absolute',
+          }}
+        />
 
-            <Header
-              walletAddress={walletAddress}
-              closeHandler={closeHandler}
-              visible={visible}
-              connectWallet={connectWallet}
-              xummPayload={xummPayload}
-            />
-          </Row>
-        </Card.Header>
-        <Divider />
-        <Card.Body css={{ py: '$10' }}>
-          {details.visibility ? (
-            <>
-              <Container display="flex" justify="center" fluid>
-                <img height="180px" src={details.imageUrl} alt="NFT" />
-              </Container>
-              <Spacer y={0.5} />
-              <Input
-                readOnly
-                width="100%"
-                label="Title"
-                initialValue={details.title}
-              />
-              <Spacer y={0.5} />
-              <Textarea
-                readOnly
-                width="100%"
-                label="Description"
-                initialValue={details.description}
-                maxRows={4}
-              />
-              <Spacer y={0.5} />
-              <Grid.Container>
-                <Row>
-                  <Input
-                    readOnly
-                    width="100%"
-                    required
-                    label="Offer"
-                    type="number"
-                    labelRight="XRP"
-                    min={1}
-                    initialValue={details.offer}
+        {isEmpty(walletAddress) ? (
+          <Connect
+            walletAddress={walletAddress}
+            closeHandler={closeHandler}
+            visible={visible}
+            connectWallet={connectWallet}
+            xummPayload={xummPayload}
+            isLoading={isLoading}
+          />
+        ) : (
+          <Card>
+            <Card.Header>
+              <Grid.Container justify="flex-start">
+                <Grid xs={8}>
+                  {details.visibility && (
+                    <Button
+                      auto
+                      size={'sm'}
+                      css={{ height: '40px', pl: '0px' }}
+                      onClick={() =>
+                        setDetails({
+                          id: 0,
+                          title: '',
+                          description: '',
+                          imageUrl: '',
+                          status: '',
+                          offer: '',
+                          date: '',
+                          tokenOfferIndex: '',
+                          merchantCryptoWalletAddress: '',
+                          visibility: false,
+                        })
+                      }
+                      light
+                      icon={<ChevronLeft set="light" />}
+                    />
+                  )}
+                </Grid>
+                <Grid xs={4}>
+                  <Header
+                    walletAddress={walletAddress}
+                    disConnectWallet={() => setWalletAddress('')}
                   />
+                </Grid>
+              </Grid.Container>
+            </Card.Header>
+            <Divider />
+            <Card.Body css={{ justifyContent: 'center' }}>
+              {details.visibility ? (
+                <>
+                  <Container display="flex" justify="center" fluid>
+                    <img height="180px" src={details.imageUrl} alt="NFT" />
+                  </Container>
                   <Spacer y={0.5} />
                   <Input
                     readOnly
-                    initialValue={details.date}
                     width="100%"
-                    required
-                    label="Date"
+                    label="Title"
+                    initialValue={details.title}
                   />
-                </Row>
-              </Grid.Container>
-              <Spacer y={0.8} />
+                  <Spacer y={0.5} />
+                  <Textarea
+                    readOnly
+                    width="100%"
+                    label="Description"
+                    initialValue={details.description}
+                    maxRows={4}
+                  />
+                  <Spacer y={0.5} />
+                  <Grid.Container>
+                    <Row>
+                      <Input
+                        readOnly
+                        width="100%"
+                        required
+                        label="Offer"
+                        type="number"
+                        labelRight="XRP"
+                        min={1}
+                        initialValue={details.offer}
+                      />
+                      <Spacer y={0.5} />
+                      <Input
+                        readOnly
+                        initialValue={details.date}
+                        width="100%"
+                        required
+                        label="Date"
+                      />
+                    </Row>
+                  </Grid.Container>
+                  <Spacer y={0.8} />
 
-              <Row justify="space-around">
-                {details.status === 'Pending' ? (
-                  <>
-                    <Button
-                      size="sm"
-                      color="success"
-                      css={{ height: '40px' }}
-                      disabled
-                    >
-                      Accept
-                    </Button>
-                    <Spacer y={0.5} />
-                    <Button
-                      size="sm"
-                      color="error"
-                      css={{ height: '40px' }}
-                      disabled
-                    >
-                      Reject
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      size="xs"
-                      color="success"
-                      css={{ height: '40px' }}
-                      onClick={acceptOffer}
-                    >
-                      Accept
-                    </Button>
-                    <Spacer y={0.5} />
-                    <Button
-                      size="xs"
-                      color="error"
-                      css={{ height: '40px' }}
-                      onClick={rejectOffer}
-                    >
-                      Reject
-                    </Button>
-                  </>
-                )}
-              </Row>
-            </>
-          ) : (
-            <>
-              <Spacer y={0.5} />
-              <Input
-                size="md"
-                clearable
-                labelPlaceholder="Title"
-                type="text"
-                value={inputValue}
-                onChange={(ev: any): void => setInputValue(ev.target.value)}
-              />
-              <Spacer y={1.5} />
-              <Textarea
-                labelPlaceholder="Description"
-                value={textAreaValue}
-                onChange={(ev: any): void => setTextAreaValue(ev.target.value)}
-              />
-              <Spacer y={1.5} />
-              <Input
-                underlined
-                clearable
-                type="file"
-                name="uploadFile"
-                onChange={(event) => uploadFile(event)}
-              />
-              <Spacer y={1.5} />
+                  <Row justify="space-around">
+                    {details.status === 'Pending' ? (
+                      <>
+                        <Button
+                          size="sm"
+                          color="success"
+                          css={{ height: '40px' }}
+                          disabled
+                        >
+                          Accept
+                        </Button>
+                        <Spacer y={0.5} />
+                        <Button
+                          size="sm"
+                          color="error"
+                          css={{ height: '40px' }}
+                          disabled
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          size="xs"
+                          color="success"
+                          css={{ height: '40px' }}
+                          onClick={acceptOffer}
+                        >
+                          Accept
+                        </Button>
+                        <Spacer y={0.5} />
+                        <Button
+                          size="xs"
+                          color="error"
+                          css={{ height: '40px' }}
+                          onClick={rejectOffer}
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    )}
+                  </Row>
+                </>
+              ) : (
+                <>
+                  <Spacer y={0.5} />
+                  <Input
+                    size="md"
+                    clearable
+                    label="Title"
+                    placeholder="Tile of the NFT"
+                    type="text"
+                    value={inputValue}
+                    onChange={(ev: any): void => setInputValue(ev.target.value)}
+                  />
 
-              <Row justify="flex-end">
-                <Button
-                  auto
-                  iconRight={<Send set="bulk" />}
-                  onClick={sendDetails}
-                  disabled={sendButtonDisabled}
-                >
-                  NFToupon
-                </Button>
-              </Row>
-            </>
-          )}
-        </Card.Body>
-        <Divider />
+                  <Spacer y={1} />
 
-        {details.visibility ? null : (
-          <>
-            <Spacer y={0.5} />
+                  <Textarea
+                    label="Description"
+                    placeholder="Enter your amazing description."
+                    value={textAreaValue}
+                    onChange={(ev: any): void =>
+                      setTextAreaValue(ev.target.value)
+                    }
+                  />
+
+                  <Spacer y={1} />
+
+                  <Input
+                    underlined
+                    clearable
+                    type="file"
+                    name="uploadFile"
+                    onChange={(event) => uploadFile(event)}
+                  />
+
+                  <Spacer y={1} />
+
+                  <Row justify="flex-end">
+                    <Button
+                      auto
+                      iconRight={<Send set="bulk" />}
+                      onClick={sendDetails}
+                      disabled={sendButtonDisabled}
+                    >
+                      NFToupon
+                    </Button>
+                  </Row>
+                </>
+              )}
+            </Card.Body>
+
             {data.length > 0 && (
               <>
                 <Grid.Container gap={1} justify="center">
@@ -536,16 +567,36 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                     />
                   </Row>
                 </Grid.Container>
-                <Divider />
               </>
             )}
-          </>
+            <Card.Footer
+              css={{
+                justifyContent: 'center',
+              }}
+            >
+              <Text
+                size="14px"
+                css={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: '$gray300',
+                }}
+              >
+                <Image
+                  width={32}
+                  height={23}
+                  css={{ filter: 'grayScale(50%)' }}
+                  alt="footer logo"
+                  src="https://djfteveaaqqdylrqovkj.supabase.co/storage/v1/object/public/beta-eatozee-web/banner-resized-img.png"
+                />
+                widget by
+                <Spacer x={0.2} />
+                <Text b>eatozee</Text>
+              </Text>
+            </Card.Footer>
+          </Card>
         )}
-
-        <Card.Footer css={{ justifyContent: 'center' }}>
-          <Text>© {`${new Date().getFullYear()}`} eatozee.</Text>
-        </Card.Footer>
-      </Card>
+      </Container>
     </NextUIProvider>
   );
 };
