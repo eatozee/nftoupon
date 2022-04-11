@@ -1,26 +1,13 @@
-type NFTokenMint = {
-  id?: number;
-  address?: string;
-  title?: string;
-  description?: string;
-  status?: string;
-  imageUrl?: string | undefined;
-  date?: string;
-  offer?: string;
-  merchantMerchantCryptoWalletAddress?: string;
-  transactionType?: string;
-  tokenId?: string;
-};
-
+import { Props } from "../Types";
   
 export function handleTransaction (
   transactionType: string,
   NFToupon_Key: string,
   URL: string,
-  NFTokenMint?: NFTokenMint,
+  Props?: Props,
 ) {
 
-    if (transactionType === 'NFTokenMint') {
+    if (transactionType === 'Props') {
         const saveTokens = async () => {
           await fetch(
             URL,
@@ -31,11 +18,11 @@ export function handleTransaction (
                 'NFToupon-Key': NFToupon_Key,
               },
               body: JSON.stringify({
-                address: NFTokenMint?.address,
-                title: NFTokenMint?.title,
-                description: NFTokenMint?.description,
+                address: Props?.address,
+                title: Props?.title,
+                description: Props?.description,
                 status: 'Pending',
-                imageUrl: NFTokenMint?.imageUrl,
+                imageUrl: Props?.imageUrl,
               }),
             }
           );
@@ -50,8 +37,8 @@ export function handleTransaction (
               'NFToupon-Key': NFToupon_Key,
             },
             body: JSON.stringify({
-              status:NFTokenMint?.status,
-              id: NFTokenMint?.id,
+              status:Props?.status,
+              id: Props?.id,
             }),
           });
         };
@@ -67,13 +54,13 @@ export function handleTransaction (
           'NFToupon-Key': NFToupon_Key,
         },
         body: JSON.stringify({
-          id: NFTokenMint?.id,
-          status: NFTokenMint?.status, 
-          date: NFTokenMint?.date,
-          offer: NFTokenMint?.offer,
-          merchantMerchantCryptoWalletAddress: NFTokenMint?.merchantMerchantCryptoWalletAddress,
-          transactionType: NFTokenMint?.transactionType,
-          tokenId: NFTokenMint?.tokenId,
+          id: Props?.id,
+          status: Props?.status, 
+          date: Props?.date,
+          offer: Props?.offer,
+          merchantMerchantCryptoWalletAddress: Props?.merchantCryptoWalletAddress,
+          transactionType: Props?.transactionType,
+          tokenId: Props?.tokenId,
         }),
       });
     };

@@ -16,15 +16,15 @@ import {
 import { Wallet, CloseSquare } from 'react-iconly';
 import { Details } from './components/Details';
 import isEmpty from 'lodash/isEmpty';
-import {
-  NFTouponPayload,
-  ResponsePayload,
-  Props,
-} from './common/Types';
+import { NFTouponPayload, ResponsePayload } from './common/Types';
 import { fetchCollectWallet } from './common/helper/fetchConnectWallet';
 import { handleTransaction } from './common/helper/handleTransaction';
+import { rejectOffer } from './common/helper/rejectOffer';
+import { getDetailsFetch } from './common/helper/getDetailsFetch';
+import { cargo } from './common/helper/cargo';
+import { sendStatusArbiter } from './common/helper/sendStatusArbiter';
 
-export const Arbiter = ({ NFToupon_Key }: Props) => {
+export const Arbiter = () => {
   const [transactionType, setTransactionType] = React.useState('');
   const [data, setData] = React.useState<NFTouponPayload>([]);
   const [lockParameter, setLockParameter] = React.useState(true);
@@ -62,9 +62,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
 
   const connectWallet = async () => {
     try {
-      const { payload } = await fetchCollectWallet(
-        NFToupon_Key
-      );
+      const { payload } = await fetchCollectWallet('36feff68-ae2a-46a1-9719-20a3fd5e633d');
       if (!isEmpty(payload)) {
         setXummPayload(payload);
         setVisible(true);
@@ -97,16 +95,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
         } else if (signed) {
-          fetch(`https://eatozee-crypto.app/api/nftoupon/cargo`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
-            },
-            body: JSON.stringify({
-              payload_uuidv4,
-            }),
-          })
+          cargo('36feff68-ae2a-46a1-9719-20a3fd5e633d', 'https://eatozee-crypto.app/api/nftoupon/cargo', payload_uuidv4)
             .then((res) => res.json())
             .then((json) => {
               setWalletAddress(json.payload);
@@ -120,21 +109,21 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     }
   }, [
     xummPayload,
-    //  NFToupon_Key
+    //  '36feff68-ae2a-46a1-9719-20a3fd5e633d'
   ]);
 
   useEffect(() => {
     if (transactionType === 'NFTokenCreateOffer') {
       handleTransaction(
         transactionType,
-        NFToupon_Key,
+        '36feff68-ae2a-46a1-9719-20a3fd5e633d',
         'https://eatozee-crypto.app/api/nftoupon/merchant/update',
         {
           id: details.id,
           status: sendProperties.status,
           date: sendProperties.expiryDate,
           offer: sendProperties.offer,
-          merchantMerchantCryptoWalletAddress: walletAddress,
+          merchantCryptoWalletAddress: walletAddress,
           transactionType: transactionType,
           tokenId: details.tokenId,
         }
@@ -142,44 +131,20 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     }
   }, [
     transactionType,
-    // NFToupon_Key,
+    // '36feff68-ae2a-46a1-9719-20a3fd5e633d',
     details,
     sendProperties,
     walletAddress,
   ]);
 
-  const rejectHandler = async () => {
-    await fetch('https://eatozee-crypto.app/api/nftoupon/merchant/update', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'NFToupon-Key': NFToupon_Key,
-      },
-      body: JSON.stringify({
-        id: details.id,
-        status: 'Rejected',
-        date: '',
-        offer: '',
-        merchantCryptoWalletAddress: walletAddress,
-        transactionType: '',
-      }),
-    });
-  };
-
   useEffect(() => {
     const getDetails = async () => {
       try {
-        const respose = await fetch(
+        const { nftoupons } = await getDetailsFetch(
+          '36feff68-ae2a-46a1-9719-20a3fd5e633d',
           'https://eatozee-crypto.app/api/nftoupon/merchant',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
-            },
-          }
+          'Arbiter'
         );
-        const { nftoupons } = await respose.json();
         setData(nftoupons);
         nftoupons.length > 0 &&
           setDetails({
@@ -198,7 +163,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     getDetails();
   }, [
     transactionType,
-    // NFToupon_Key
+    // '36feff68-ae2a-46a1-9719-20a3fd5e633d'
   ]);
 
   const sendStatus = async (sendDetails: {
@@ -210,24 +175,17 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     tokenId: string;
   }) => {
     try {
-      const response = await fetch(
+      const { payload } = await sendStatusArbiter(
+        '36feff68-ae2a-46a1-9719-20a3fd5e633d',
         'https://eatozee-crypto.app/api/nftoupon/offer/buy',
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'NFToupon-Key': NFToupon_Key,
-          },
-          body: JSON.stringify({
-            offer: sendDetails.offer,
-            merchantCryptoWalletAddress: walletAddress,
-            address: sendDetails.merchantCryptoWalletAddress,
-            tokenId: sendDetails.tokenId,
-          }),
+          offer: sendDetails.offer,
+          merchantCryptoWalletAddress: walletAddress,
+          address: sendDetails.merchantCryptoWalletAddress,
+          tokenId: sendDetails.tokenId,
         }
       );
 
-      const { payload } = await response.json();
       if (!isEmpty(payload)) {
         setSendProperties({
           status: sendDetails.status,
@@ -336,7 +294,12 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
                 sendStatus(details);
               }}
               rejectHandler={() => {
-                rejectHandler();
+                rejectOffer(
+                  '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+                  'https://eatozee-crypto.app/api/nftoupon/merchant/update',
+                  'Arbiter',
+                  { id: details.id, merchantCryptoWalletAddress: walletAddress }
+                );
               }}
               lockParameter={lockParameter}
             />

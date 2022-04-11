@@ -17,6 +17,18 @@ export interface ResponsePayload {
   };
   imageUrl?: string;
 }
+
 export type Props = {
-  NFToupon_Key: string;
+  id?: number;
+  address?: string;
+  title?: string;
+  description?: string;
+  status?: string;
+  imageUrl?: string | undefined;
+  date?: string;
+  offer?: string;
+  merchantCryptoWalletAddress?: string;
+  transactionType?: string;
+  tokenId?: string;
+  src?: any;
 };
