@@ -18,29 +18,16 @@ import isEmpty from 'lodash/isEmpty';
 import { Send, ChevronLeft } from 'react-iconly';
 import { Header } from './components/Header';
 import confetti from 'canvas-confetti';
-interface ResponsePayload {
-  uuid: string;
-  refs: {
-    qr_png: string;
-    websocket_status: string;
-  };
-  imageUrl: string;
-}
+import { fetchCollectWallet } from './common/helper/fetchConnectWallet';
+import { handleTransaction } from './common/helper/handleTransaction';
+import { NFTouponPayload, ResponsePayload } from './common/Types';
+import { creatorAcceptOffer } from './common/helper/creatorAcceptOffer';
+import { rejectOffer } from './common/helper/rejectOffer';
+import { sendStatusFetch } from './common/helper/sendStatusFetch';
+import { getDetailsFetch } from './common/helper/getDetailsFetch';
+import { cargo } from './common/helper/cargo';
 
-type Props = {
-  NFToupon_Key: string;
-};
-
-type NFTouponPayload = {
-  id: number;
-  title: string;
-  imageUrl: string;
-  description: string;
-  status: string;
-  merchantCryptoWalletAddress: string;
-}[];
-
-export const Creator = ({ NFToupon_Key }: Props) => {
+export const Creator = (NFToupon_Key: string) => {
   const [visible, setVisible] = React.useState(false);
   const closeHandler = () => setVisible(false);
   const [details, setDetails] = React.useState({
@@ -97,22 +84,12 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   };
 
   const acceptOffer = async () => {
-    const response = await fetch(
-      `https://eatozee-crypto.app/api/nftoupon/offer/accept`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'NFToupon-Key': NFToupon_Key,
-        },
-        body: JSON.stringify({
-          tokenOfferIndex: details.tokenOfferIndex,
-          address: walletAddress,
-        }),
-      }
+    const { payload } = await creatorAcceptOffer(
+      NFToupon_Key,
+      'https://eatozee-crypto.app/api/nftoupon/offer/accept',
+      details.tokenOfferIndex,
+      walletAddress
     );
-    const { payload } = await response.json();
-
     if (!isEmpty(payload)) {
       setXummPayload(payload);
       setVisible(true);
@@ -121,37 +98,15 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     }
   };
 
-  const rejectOffer = async () => {
-    await fetch('https://eatozee-crypto.app/api/nftoupon/creator/update', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'NFToupon-Key': NFToupon_Key,
-      },
-      body: JSON.stringify({
-        status: 'Declined',
-        id: details.id,
-      }),
-    });
-  };
-
-  const sendDetails = async () => {
-    const response = await fetch(
+  const sendStatus = async () => {
+    const { payload } = await sendStatusFetch(
+      NFToupon_Key,
       `https://eatozee-crypto.app/api/nftoupon/creator/mint`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'NFToupon-Key': NFToupon_Key,
-        },
-        body: JSON.stringify({
-          file: src,
-          address: walletAddress,
-        }),
-      }
+      walletAddress,
+      src
     );
-    const { payload } = await response.json();
-
+    console.log('sendstatus walletAddress', walletAddress);
+    console.log('SEndstatus payload', payload);
     if (!isEmpty(payload)) {
       setXummPayload(payload);
       setVisible(true);
@@ -162,18 +117,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 
   const connectWallet = async () => {
     try {
-      const response = await fetch(
-        `https://eatozee-crypto.app/api/nftoupon/connect`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'NFToupon-Key': NFToupon_Key,
-          },
-        }
-      );
-      const { payload } = await response.json();
-
+      const { payload } = await fetchCollectWallet(NFToupon_Key);
       if (!isEmpty(payload)) {
         setXummPayload(payload);
         setVisible(true);
@@ -184,7 +128,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       console.log('error ', error);
     }
   };
-
   const closeSocket = (ws: WebSocket) => {
     ws.close();
     setXummPayload(null);
@@ -194,20 +137,13 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   useEffect(() => {
     const getDetails = async () => {
       try {
-        const respose = await fetch(
+        const { nftoupons } = await getDetailsFetch(
+          NFToupon_Key,
           'https://eatozee-crypto.app/api/nftoupon/getMeta',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
-            },
-            body: JSON.stringify({
-              address: walletAddress,
-            }),
-          }
+          'Creator',
+          walletAddress
         );
-        const { nftoupons } = await respose.json();
+        console.log('This is creator nftoupons ', nftoupons);
         setData(nftoupons);
       } catch (error) {
         console.log('error', error);
@@ -232,16 +168,11 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
         } else if (signed) {
-          fetch(`https://eatozee-crypto.app/api/nftoupon/cargo`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
-            },
-            body: JSON.stringify({
-              payload_uuidv4,
-            }),
-          })
+          cargo(
+            NFToupon_Key,
+            'https://eatozee-crypto.app/api/nftoupon/cargo',
+            payload_uuidv4
+          )
             .then((res) => res.json())
             .then((json) => {
               setWalletAddress(json.payload);
@@ -257,42 +188,29 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 
   useEffect(() => {
     if (transactionType === 'NFTokenMint') {
-      const saveTokens = async () => {
-        await fetch(
-          'https://eatozee-crypto.app/api/nftoupon/creator/saveTokens',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
-            },
-            body: JSON.stringify({
-              address: walletAddress,
-              title: inputValue,
-              description: textAreaValue,
-              status: 'Pending',
-              imageUrl: xummPayload?.imageUrl,
-            }),
-          }
-        );
-      };
-      saveTokens();
+      handleTransaction(
+        transactionType,
+        NFToupon_Key,
+        'https://eatozee-crypto.app/api/nftoupon/creator/saveTokens',
+        {
+          address: walletAddress,
+          title: inputValue,
+          description: textAreaValue,
+          status: 'Pending',
+          imageUrl: xummPayload?.imageUrl,
+        }
+      );
       handleConfetti();
     } else if (transactionType === 'NFTokenAcceptOffer') {
-      const updateTokenStatus = async () => {
-        await fetch('https://eatozee-crypto.app/api/nftoupon/creator/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'NFToupon-Key': NFToupon_Key,
-          },
-          body: JSON.stringify({
-            status: 'Created',
-            id: details.id,
-          }),
-        });
-      };
-      updateTokenStatus();
+      handleTransaction(
+        transactionType,
+        NFToupon_Key,
+        'https://eatozee-crypto.app/api/nftoupon/creator/update',
+        {
+          status: 'Created',
+          id: details.id,
+        }
+      );
     }
   }, [
     transactionType,
@@ -432,7 +350,14 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                       size="xs"
                       color="error"
                       css={{ height: '40px' }}
-                      onClick={rejectOffer}
+                      onClick={() => {
+                        rejectOffer(
+                          NFToupon_Key,
+                          'https://eatozee-crypto.app/api/nftoupon/creator/update',
+                          'Creator',
+                          { id: details.id }
+                        );
+                      }}
                     >
                       Reject
                     </Button>
@@ -471,7 +396,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                 <Button
                   auto
                   iconRight={<Send set="bulk" />}
-                  onClick={sendDetails}
+                  onClick={sendStatus}
                   disabled={sendButtonDisabled}
                 >
                   NFToupon
