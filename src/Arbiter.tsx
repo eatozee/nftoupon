@@ -16,6 +16,7 @@ import {
 import { Wallet, CloseSquare } from 'react-iconly';
 import { Details } from './components/Details';
 import isEmpty from 'lodash/isEmpty';
+import { Toaster, toast } from 'react-hot-toast';
 
 type NFTouponPayload = {
   id: number;
@@ -94,6 +95,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       }
     } catch (error) {
       console.log('error ', error);
+      toast.error('Something went wrong.');
     }
   };
 
@@ -115,8 +117,10 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
           // setLockParameter(false);
         } else if (expired) {
           closeSocket(ws);
+          toast.error('Transaction expired.');
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
+          toast.error('Transaction not signed.');
         } else if (signed) {
           fetch(`https://eatozee-crypto.app/api/nftoupon/cargo`, {
             method: 'POST',
@@ -210,6 +214,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
           });
       } catch (error) {
         console.log('error', error);
+        toast.error('Something went wrong.');
       }
     };
     getDetails();
@@ -256,6 +261,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       }
     } catch (error) {
       console.log(error);
+      toast.error('Something went wrong.');
     }
   };
 
@@ -266,6 +272,12 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
           width: '400px',
         }}
       >
+         <Toaster
+          containerStyle={{
+            marginTop: '20px',
+            position: 'absolute',
+          }}
+        />
         <Card.Header>
           <Row align="center" justify="space-between">
             <Row align="center" gap={0} justify="flex-end">
