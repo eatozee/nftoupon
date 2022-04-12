@@ -12,7 +12,9 @@ export const Header = (props: prop) => {
       <Text css={{ overflow: 'hidden', textOverflow: 'ellipsis' }} size="sm">
         {props.walletAddress}
       </Text>
-      <Link onClick={props.disConnectWallet}>@disconnect</Link>
+      <Link css={{ color: '#FB7085' }} onClick={props.disConnectWallet}>
+        @disconnect
+      </Link>
     </Col>
   );
 };
