@@ -21,6 +21,8 @@ import { Header } from './components/Header';
 import confetti from 'canvas-confetti';
 import { Connect } from './Connect';
 import { Toaster, toast } from 'react-hot-toast';
+import { fetcher } from './common/helper';
+import { CONNECT_WALLET_URL } from './common/constants';
 interface ResponsePayload {
   uuid: string;
   refs: {
@@ -60,8 +62,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   });
   const [xummPayload, setXummPayload] =
     React.useState<ResponsePayload | null>(null);
-  const [walletAddress, setWalletAddress] =
-    React.useState<string>('radfdasDAradfdasDA');
+  const [walletAddress, setWalletAddress] = React.useState<string>('');
   const [transactionType, setTransactionType] = React.useState<string>('');
 
   const [charCounter, setCharCounter] = React.useState(0);
@@ -172,17 +173,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `https://eatozee-crypto.app/api/nftoupon/connect`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'NFToupon-Key': NFToupon_Key,
-          },
-        }
-      );
-      const { payload } = await response.json();
+      const { payload } = await fetcher(NFToupon_Key, CONNECT_WALLET_URL);
 
       if (!isEmpty(payload)) {
         setXummPayload(payload);
