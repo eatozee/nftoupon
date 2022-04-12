@@ -60,15 +60,18 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   });
   const [xummPayload, setXummPayload] =
     React.useState<ResponsePayload | null>(null);
-  const [walletAddress, setWalletAddress] = React.useState<string>('');
+  const [walletAddress, setWalletAddress] =
+    React.useState<string>('radfdasDAradfdasDA');
   const [transactionType, setTransactionType] = React.useState<string>('');
 
-  const [sendButtonDisabled, setSendButtonDisabled] = React.useState(true);
+  const [charCounter, setCharCounter] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(false);
   const [data, setData] = React.useState<NFTouponPayload>([]);
 
   const [src, setSrc] = React.useState<any>(''); // initial src will be empty
-  const [inputValue, setInputValue] = React.useState<string>(''); //storing title input
+  const [imageURL, setImageURL] = React.useState<any>(
+    'https://djfteveaaqqdylrqovkj.supabase.co/storage/v1/object/public/beta-eatozee-web/nft-free.webp'
+  );
   const [textAreaValue, setTextAreaValue] = React.useState<string>(''); //storing description input
 
   //Logic for refs.data in pagination where '4' is the refs.data per page
@@ -96,6 +99,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       const binaryData: any = reader.result;
       const byteString = atob(binaryData.split(',')[1]);
       setSrc(byteString);
+      setImageURL(binaryData);
     };
     reader.readAsDataURL(event.target.files[0]);
   };
@@ -253,7 +257,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             .then((res) => res.json())
             .then((json) => {
               setWalletAddress(json.payload);
-              setSendButtonDisabled(false);
               setTransactionType(json.tx_type);
               closeSocket(ws);
             })
@@ -276,7 +279,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             },
             body: JSON.stringify({
               address: walletAddress,
-              title: inputValue,
+              title: '',
               description: textAreaValue,
               status: 'Pending',
               imageUrl: xummPayload?.imageUrl,
@@ -306,7 +309,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     transactionType,
     walletAddress,
     details,
-    inputValue,
     textAreaValue,
     xummPayload,
     NFToupon_Key,
@@ -319,7 +321,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         justify="center"
         css={{
           minHeight: '500px',
-          width: '400px',
+          width: '410px',
         }}
       >
         <Toaster
@@ -375,6 +377,41 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                 </Grid>
               </Grid.Container>
             </Card.Header>
+
+            <Card shadow={false} css={{ borderRadius: '0' }}>
+              <Card.Image
+                showSkeleton
+                src={imageURL}
+                height={200}
+                width="100%"
+                alt="NFT Preview"
+              />
+              <Card.Footer
+                blur
+                css={{
+                  minHeight: '40px',
+                  borderRadius: '0',
+                  position: 'absolute',
+                  bgBlur: '#EAEAEA',
+                  borderTop:
+                    '$borderWeights$light solid rgba(255, 255, 255, 0.2)',
+                  bottom: 0,
+                  zIndex: 1,
+                }}
+              >
+                <Row>
+                  <Text
+                    size={14}
+                    css={{ color: '$accents4', fontWeight: '$semibold' }}
+                  >
+                    {isEmpty(textAreaValue)
+                      ? `Create a beautiful description for your NFT token.`
+                      : textAreaValue}
+                  </Text>
+                </Row>
+              </Card.Footer>
+            </Card>
+
             <Divider />
             <Card.Body css={{ justifyContent: 'center' }}>
               {details.visibility ? (
@@ -468,37 +505,54 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                 </>
               ) : (
                 <>
-                  <Spacer y={0.5} />
-                  <Input
-                    size="md"
-                    clearable
-                    label="Title"
-                    placeholder="Tile of the NFT"
-                    type="text"
-                    value={inputValue}
-                    onChange={(ev: any): void => setInputValue(ev.target.value)}
-                  />
-
                   <Spacer y={1} />
 
                   <Textarea
+                    bordered
+                    shadow={false}
+                    color="primary"
+                    helperText={`${charCounter}/200`}
                     label="Description"
                     placeholder="Enter your amazing description."
                     value={textAreaValue}
-                    onChange={(ev: any): void =>
-                      setTextAreaValue(ev.target.value)
-                    }
+                    onChange={(ev: any): void => {
+                      const length = ev.target.value.length;
+
+                      if (length <= 200) {
+                        setTextAreaValue(ev.target.value);
+                        setCharCounter(length);
+                      }
+                    }}
                   />
 
-                  <Spacer y={1} />
+                  <Spacer y={1.5} />
 
                   <Input
-                    underlined
-                    clearable
+                    hidden={true}
+                    css={{
+                      display: 'none',
+                    }}
+                    id="upload"
                     type="file"
                     name="uploadFile"
                     onChange={(event) => uploadFile(event)}
                   />
+                  <label
+                    style={{
+                      backgroundColor: '#FCD57A',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      padding: '10px',
+                      cursor: 'pointer',
+                      height: '40px',
+                      fontSize: '14px',
+                    }}
+                    htmlFor="upload"
+                  >
+                    Choose file
+                  </label>
 
                   <Spacer y={1} />
 
@@ -507,7 +561,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                       auto
                       iconRight={<Send set="bulk" />}
                       onClick={sendDetails}
-                      disabled={sendButtonDisabled}
                     >
                       NFToupon
                     </Button>
