@@ -122,6 +122,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       setVisible(true);
     } else {
       setXummPayload(null);
+      toast.error('Something went wrong');
     }
   };
 
@@ -160,7 +161,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       setXummPayload(payload);
       setVisible(true);
     } else {
-      setXummPayload(null);
+      setXummPayload(null); 
     }
   };
 
@@ -224,7 +225,9 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     if (!isEmpty(walletAddress)) {
       getDetails();
     }
-  }, [walletAddress, transactionType, NFToupon_Key]);
+  }, [walletAddress, transactionType, 
+    NFToupon_Key
+  ]);
 
   useEffect(() => {
     if (!isEmpty(xummPayload)) {
@@ -237,8 +240,10 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         if (opened) {
         } else if (expired) {
           closeSocket(ws);
+          toast.error('Transaction expired.');
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
+          toast.error('Transaction failed to sign.');
         } else if (signed) {
           fetch(`https://eatozee-crypto.app/api/nftoupon/cargo`, {
             method: 'POST',
@@ -261,7 +266,9 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         }
       };
     }
-  }, [xummPayload, NFToupon_Key]);
+  }, [xummPayload, 
+    NFToupon_Key
+  ]);
 
   useEffect(() => {
     if (transactionType === 'NFTokenMint') {
