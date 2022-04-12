@@ -16,6 +16,8 @@ import {
 import { Wallet, CloseSquare } from 'react-iconly';
 import { Details } from './components/Details';
 import isEmpty from 'lodash/isEmpty';
+import { ToastContainer, toast, TypeOptions } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type NFTouponPayload = {
   id: number;
@@ -63,7 +65,11 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
   const closeHandler = () => {
     setVisible(false);
   };
-
+  
+  const toastId = React.useRef<any>(null);
+  const notify = (text: string, type: TypeOptions) =>
+    (toastId.current = toast(text, { type }));
+    
   //Logic for data in pagination where '4' is the data per page
   const [currentPage, setCurrentPage] = React.useState(1);
   const indexOfLastPost = currentPage * 4;
@@ -91,9 +97,11 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
         setVisible(true);
       } else {
         setXummPayload(null);
+        notify('Something went wrong', 'error');
       }
     } catch (error) {
       console.log('error ', error);
+      notify('Something went wrong', 'error');
     }
   };
 
@@ -115,8 +123,10 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
           // setLockParameter(false);
         } else if (expired) {
           closeSocket(ws);
+          notify('Transaction expired', 'error');
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
+          notify('Transaction not signed', 'error');
         } else if (signed) {
           fetch(`https://eatozee-crypto.app/api/nftoupon/cargo`, {
             method: 'POST',
