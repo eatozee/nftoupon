@@ -7,7 +7,7 @@ export function handleTransaction (
   Props?: Props,
 ) {
 
-    if (transactionType === 'Props') {
+    if (transactionType === 'NFToken_Mint') {
         const saveTokens = async () => {
           await fetch(
             URL,
