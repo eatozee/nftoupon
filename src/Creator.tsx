@@ -18,9 +18,6 @@ import isEmpty from 'lodash/isEmpty';
 import { Send, ChevronLeft } from 'react-iconly';
 import { Header } from './components/Header';
 import confetti from 'canvas-confetti';
-import { ToastContainer, toast, TypeOptions } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 interface ResponsePayload {
   uuid: string;
   refs: {
@@ -44,7 +41,6 @@ type NFTouponPayload = {
 }[];
 
 export const Creator = ({ NFToupon_Key }: Props) => {
-  
   const [visible, setVisible] = React.useState(false);
   const closeHandler = () => setVisible(false);
   const [details, setDetails] = React.useState({
@@ -90,10 +86,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     });
   };
 
-  const toastId = React.useRef<any>(null);
-  const notify = (text: string, type: TypeOptions) =>
-    (toastId.current = toast(text, { type }));
-
   const uploadFile = (event: any) => {
     const reader = new FileReader();
     reader.onload = async function () {
@@ -111,7 +103,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'NFToupon-Key':  NFToupon_Key,
+          'NFToupon-Key': NFToupon_Key,
         },
         body: JSON.stringify({
           tokenOfferIndex: details.tokenOfferIndex,
@@ -126,7 +118,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       setVisible(true);
     } else {
       setXummPayload(null);
-      notify('Something went wrong', 'error');
     }
   };
 
@@ -135,7 +126,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'NFToupon-Key':  NFToupon_Key,
+        'NFToupon-Key': NFToupon_Key,
       },
       body: JSON.stringify({
         status: 'Declined',
@@ -151,7 +142,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'NFToupon-Key':  NFToupon_Key,
+          'NFToupon-Key': NFToupon_Key,
         },
         body: JSON.stringify({
           file: src,
@@ -166,7 +157,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       setVisible(true);
     } else {
       setXummPayload(null);
-      notify('Something went wrong', 'error');
     }
   };
 
@@ -178,7 +168,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'NFToupon-Key':  NFToupon_Key,
+            'NFToupon-Key': NFToupon_Key,
           },
         }
       );
@@ -210,7 +200,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key':  NFToupon_Key,
+              'NFToupon-Key': NFToupon_Key,
             },
             body: JSON.stringify({
               address: walletAddress,
@@ -221,15 +211,12 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         setData(nftoupons);
       } catch (error) {
         console.log('error', error);
-        notify('Error fetching data', 'error');
       }
     };
     if (!isEmpty(walletAddress)) {
       getDetails();
     }
-  }, [walletAddress, transactionType,
-     NFToupon_Key
-    ]);
+  }, [walletAddress, transactionType, NFToupon_Key]);
 
   useEffect(() => {
     if (!isEmpty(xummPayload)) {
@@ -242,16 +229,14 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         if (opened) {
         } else if (expired) {
           closeSocket(ws);
-          notify('Transaction expired', 'error');
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
-          notify('Transaction not signed', 'error');
         } else if (signed) {
           fetch(`https://eatozee-crypto.app/api/nftoupon/cargo`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key':  NFToupon_Key,
+              'NFToupon-Key': NFToupon_Key,
             },
             body: JSON.stringify({
               payload_uuidv4,
@@ -268,9 +253,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         }
       };
     }
-  }, [xummPayload, 
-    NFToupon_Key
-  ]);
+  }, [xummPayload, NFToupon_Key]);
 
   useEffect(() => {
     if (transactionType === 'NFTokenMint') {
@@ -281,7 +264,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key':  NFToupon_Key,
+              'NFToupon-Key': NFToupon_Key,
             },
             body: JSON.stringify({
               address: walletAddress,
@@ -296,25 +279,21 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       saveTokens();
       handleConfetti();
     } else if (transactionType === 'NFTokenAcceptOffer') {
-
-        const updateTokenStatus = async () => {
-          await fetch(
-            'https://eatozee-crypto.app/api/nftoupon/creator/update',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'NFToupon-Key':  NFToupon_Key,
-              },
-              body: JSON.stringify({
-                status: 'Created',
-                id: details.id,
-              }),
-            }
-          );
-          updateTokenStatus();
-        };
-      }
+      const updateTokenStatus = async () => {
+        await fetch('https://eatozee-crypto.app/api/nftoupon/creator/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'NFToupon-Key': NFToupon_Key,
+          },
+          body: JSON.stringify({
+            status: 'Created',
+            id: details.id,
+          }),
+        });
+      };
+      updateTokenStatus();
+    }
   }, [
     transactionType,
     walletAddress,
@@ -368,7 +347,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
               connectWallet={connectWallet}
               xummPayload={xummPayload}
             />
-            <ToastContainer />
           </Row>
         </Card.Header>
         <Divider />
@@ -499,7 +477,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                   NFToupon
                 </Button>
               </Row>
-              <ToastContainer />
             </>
           )}
         </Card.Body>
