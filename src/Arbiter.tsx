@@ -17,7 +17,7 @@ import { Wallet, CloseSquare } from 'react-iconly';
 import { Details } from './components/Details';
 import isEmpty from 'lodash/isEmpty';
 import { Toaster, toast } from 'react-hot-toast';
-import { NOTIFY } from './common/constants';
+import { ERROR_IN_API, FAIL_SIGN } from './common/constants';
 
 type NFTouponPayload = {
   id: number;
@@ -96,7 +96,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
         setXummPayload(null);
       }
     } catch (error) {
-      toast.error(NOTIFY);
+      toast.error(ERROR_IN_API);
     }
   };
 
@@ -118,10 +118,10 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
           // setLockParameter(false);
         } else if (expired) {
           closeSocket(ws);
-          toast.error('Transaction expired.');
+          toast.error(ERROR_IN_API);
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
-          toast.error('Transaction not signed.');
+          toast.error(FAIL_SIGN);
         } else if (signed) {
           fetch(`https://eatozee-crypto.app/api/nftoupon/cargo`, {
             method: 'POST',
@@ -214,7 +214,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
             cryptoWalletAddress: nftoupons[0].cryptoWalletAddress,
           });
       } catch (error) {
-        console.log('error', error);
+        toast.error(ERROR_IN_API);
       }
     };
     getDetails();
@@ -260,8 +260,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
         setXummPayload(null);
       }
     } catch (error) {
-      console.log(error);
-      toast.error(NOTIFY);
+      toast.error(ERROR_IN_API);
     }
   };
 

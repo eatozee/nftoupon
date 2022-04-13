@@ -23,7 +23,7 @@ import confetti from 'canvas-confetti';
 import { Connect } from './Connect';
 import { Toaster, toast } from 'react-hot-toast';
 import { fetcher } from './common/helper';
-import { CONNECT_WALLET_URL, NOTIFY, FAIL_SIGN } from './common/constants';
+import { CONNECT_WALLET_URL, ERROR_IN_API, FAIL_SIGN } from './common/constants';
 
 const DETAILS = {
   id: 0,
@@ -133,7 +133,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       setVisible(true);
     } else {
       setXummPayload(null);
-      toast.error(NOTIFY)
+      toast.error(ERROR_IN_API)
     }
   };
 
@@ -193,7 +193,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         setXummPayload(null);
       }
     } catch (error) {
-      toast.error(NOTIFY)
+      toast.error(ERROR_IN_API)
     }
 
     setIsLoading(false);
@@ -247,7 +247,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         if (opened) {
         } else if (expired) {
           closeSocket(ws);
-          toast.error(NOTIFY)
+          toast.error(ERROR_IN_API)
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
           toast.error(FAIL_SIGN)
