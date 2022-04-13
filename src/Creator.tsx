@@ -14,6 +14,7 @@ import {
   Container,
   Pagination,
   Image,
+  Modal,
 } from '@nextui-org/react';
 import isEmpty from 'lodash/isEmpty';
 import { Send, ChevronLeft } from 'react-iconly';
@@ -74,6 +75,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     'https://djfteveaaqqdylrqovkj.supabase.co/storage/v1/object/public/beta-eatozee-web/nft-free.webp'
   );
   const [textAreaValue, setTextAreaValue] = React.useState<string>(''); //storing description input
+  const [validation, setValidation] = React.useState<boolean>(false);
 
   //Logic for refs.data in pagination where '4' is the refs.data per page
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -112,7 +114,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'NFToupon-Key': NFToupon_Key,
+          'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
         },
         body: JSON.stringify({
           tokenOfferIndex: details.tokenOfferIndex,
@@ -136,7 +138,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'NFToupon-Key': NFToupon_Key,
+        'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
       },
       body: JSON.stringify({
         status: 'Declined',
@@ -146,13 +148,43 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   };
 
   const sendDetails = async () => {
+    if (textAreaValue === '') {
+      setValidation(true);
+      setVisible(false);
+    } else {
+      
+      const response = await fetch(
+        `https://eatozee-crypto.app/api/nftoupon/creator/mint`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          },
+          body: JSON.stringify({
+            file: src,
+            address: walletAddress,
+          }),
+        }
+      );
+     
+      const { payload } = await response.json();
+      console.log('inside sendDetails',payload);
+      if (!isEmpty(payload)) {
+        setXummPayload(payload);
+        setVisible(true);
+      } else {
+        setXummPayload(null);
+      }
+    }
+
     const response = await fetch(
       `https://eatozee-crypto.app/api/nftoupon/creator/mint`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'NFToupon-Key': NFToupon_Key,
+          'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
         },
         body: JSON.stringify({
           file: src,
@@ -166,7 +198,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       setXummPayload(payload);
       setVisible(true);
     } else {
-      setXummPayload(null); 
+      setXummPayload(null);
     }
   };
 
@@ -204,7 +236,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
+              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
             },
             body: JSON.stringify({
               address: walletAddress,
@@ -220,8 +252,10 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     if (!isEmpty(walletAddress)) {
       getDetails();
     }
-  }, [walletAddress, transactionType, 
-    NFToupon_Key
+  }, [
+    walletAddress,
+    transactionType,
+    // NFToupon_Key
   ]);
 
   useEffect(() => {
@@ -244,7 +278,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
+              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
             },
             body: JSON.stringify({
               payload_uuidv4,
@@ -260,8 +294,9 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         }
       };
     }
-  }, [xummPayload, 
-    NFToupon_Key
+  }, [
+    xummPayload,
+    // NFToupon_Key
   ]);
 
   useEffect(() => {
@@ -273,7 +308,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
+              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
             },
             body: JSON.stringify({
               address: walletAddress,
@@ -293,7 +328,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'NFToupon-Key': NFToupon_Key,
+            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
           },
           body: JSON.stringify({
             status: 'Created',
@@ -309,7 +344,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     details,
     textAreaValue,
     xummPayload,
-    NFToupon_Key,
+    // NFToupon_Key,
   ]);
 
   return (
@@ -508,10 +543,12 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                   <Textarea
                     bordered
                     shadow={false}
-                    color="primary"
-                    helperText={`${charCounter}/200`}
+                    color={validation ? 'error' : 'primary'}
                     label="Description"
                     placeholder="Enter your amazing description."
+                    helperText={validation ? 'Description is required' : `${charCounter}/200`}
+                    helperColor={validation ? 'error' : 'default'}
+                    
                     value={textAreaValue}
                     onChange={(ev: any): void => {
                       const length = ev.target.value.length;
@@ -647,6 +684,26 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             </Card.Footer>
           </Card>
         )}
+        
+        <Modal
+        closeButton
+        aria-labelledby="modal-title"
+        open={visible}
+        onClose={closeHandler}
+      >
+        <Modal.Body>
+          {!isEmpty(xummPayload) ? (
+            <Image
+              width="100%"
+              height="100%"
+              src={xummPayload?.refs?.qr_png || ''}
+              alt="qr_code"
+            />
+          ) : (
+            <div>Something went wrong</div>
+          )}
+        </Modal.Body>
+      </Modal>
       </Container>
     </NextUIProvider>
   );
