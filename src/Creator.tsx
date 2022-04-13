@@ -224,7 +224,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         const { nftoupons } = await respose.json();
         setData(nftoupons);
       } catch (error) {
-        console.log('error', error);
+        toast.error(ERROR_IN_API)
       }
     };
     if (!isEmpty(walletAddress)) {
