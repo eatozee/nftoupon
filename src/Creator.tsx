@@ -114,7 +114,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          'NFToupon-Key': NFToupon_Key,
         },
         body: JSON.stringify({
           tokenOfferIndex: details.tokenOfferIndex,
@@ -138,7 +138,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+        'NFToupon-Key': NFToupon_Key,
       },
       body: JSON.stringify({
         status: 'Declined',
@@ -159,7 +159,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+            'NFToupon-Key': NFToupon_Key,
           },
           body: JSON.stringify({
             file: src,
@@ -169,7 +169,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       );
      
       const { payload } = await response.json();
-      console.log('inside sendDetails',payload);
       if (!isEmpty(payload)) {
         setXummPayload(payload);
         setVisible(true);
@@ -184,7 +183,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+          'NFToupon-Key': NFToupon_Key,
         },
         body: JSON.stringify({
           file: src,
@@ -236,7 +235,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+              'NFToupon-Key': NFToupon_Key,
             },
             body: JSON.stringify({
               address: walletAddress,
@@ -255,7 +254,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   }, [
     walletAddress,
     transactionType,
-    // NFToupon_Key
+    NFToupon_Key
   ]);
 
   useEffect(() => {
@@ -278,7 +277,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+              'NFToupon-Key': NFToupon_Key,
             },
             body: JSON.stringify({
               payload_uuidv4,
@@ -296,7 +295,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     }
   }, [
     xummPayload,
-    // NFToupon_Key
+    NFToupon_Key
   ]);
 
   useEffect(() => {
@@ -308,7 +307,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+              'NFToupon-Key': NFToupon_Key,
             },
             body: JSON.stringify({
               address: walletAddress,
@@ -328,7 +327,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'NFToupon-Key': '36feff68-ae2a-46a1-9719-20a3fd5e633d',
+            'NFToupon-Key': NFToupon_Key,
           },
           body: JSON.stringify({
             status: 'Created',
@@ -344,7 +343,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     details,
     textAreaValue,
     xummPayload,
-    // NFToupon_Key,
+    NFToupon_Key,
   ]);
 
   return (
@@ -548,11 +547,11 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                     placeholder="Enter your amazing description."
                     helperText={validation ? 'Description is required' : `${charCounter}/200`}
                     helperColor={validation ? 'error' : 'default'}
-                    
+
                     value={textAreaValue}
                     onChange={(ev: any): void => {
                       const length = ev.target.value.length;
-
+                        setValidation(false);
                       if (length <= 200) {
                         setTextAreaValue(ev.target.value);
                         setCharCounter(length);
