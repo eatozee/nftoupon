@@ -17,6 +17,7 @@ import { Wallet, CloseSquare } from 'react-iconly';
 import { Details } from './components/Details';
 import isEmpty from 'lodash/isEmpty';
 import { Toaster, toast } from 'react-hot-toast';
+import { NOTIFY } from './common/constants';
 
 type NFTouponPayload = {
   id: number;
@@ -64,6 +65,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
   const closeHandler = () => {
     setVisible(false);
   };
+ 
 
   //Logic for data in pagination where '4' is the data per page
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -94,8 +96,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
         setXummPayload(null);
       }
     } catch (error) {
-      console.log('error ', error);
-      toast.error('Something went wrong.');
+      toast.error(NOTIFY);
     }
   };
 
@@ -214,7 +215,6 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
           });
       } catch (error) {
         console.log('error', error);
-        toast.error('Something went wrong.');
       }
     };
     getDetails();
@@ -261,7 +261,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       }
     } catch (error) {
       console.log(error);
-      toast.error('Something went wrong.');
+      toast.error(NOTIFY);
     }
   };
 

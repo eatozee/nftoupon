@@ -23,7 +23,7 @@ import confetti from 'canvas-confetti';
 import { Connect } from './Connect';
 import { Toaster, toast } from 'react-hot-toast';
 import { fetcher } from './common/helper';
-import { CONNECT_WALLET_URL } from './common/constants';
+import { CONNECT_WALLET_URL, NOTIFY, FAIL_SIGN } from './common/constants';
 
 const DETAILS = {
   id: 0,
@@ -63,18 +63,8 @@ type NFTouponPayload = {
 export const Creator = ({ NFToupon_Key }: Props) => {
   const [visible, setVisible] = React.useState(false);
   const closeHandler = () => setVisible(false);
-  const [details, setDetails] = React.useState({
-    id: 0,
-    title: '',
-    description: '',
-    imageUrl: '',
-    status: '',
-    offer: '',
-    date: '',
-    tokenOfferIndex: '',
-    merchantCryptoWalletAddress: '',
-    visibility: false,
-  });
+  const [details, setDetails] = React.useState(DETAILS);
+  
   const [xummPayload, setXummPayload] =
     React.useState<ResponsePayload | null>(null);
   const [walletAddress, setWalletAddress] = React.useState<string>('');
@@ -143,7 +133,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       setVisible(true);
     } else {
       setXummPayload(null);
-      toast.error('Something went wrong');
+      toast.error(NOTIFY)
     }
   };
 
@@ -162,11 +152,9 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   };
 
   const sendDetails = async () => {
-    if (textAreaValue === '') {
+    if (isEmpty(textAreaValue.trim())) {
       setValidation(true);
-      setVisible(false);
     } else {
-      
       const response = await fetch(
         `https://eatozee-crypto.app/api/nftoupon/creator/mint`,
         {
@@ -190,29 +178,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         setXummPayload(null);
       }
     }
-
-    const response = await fetch(
-      `https://eatozee-crypto.app/api/nftoupon/creator/mint`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'NFToupon-Key': NFToupon_Key,
-        },
-        body: JSON.stringify({
-          file: src,
-          address: walletAddress,
-        }),
-      }
-    );
-    const { payload } = await response.json();
-
-    if (!isEmpty(payload)) {
-      setXummPayload(payload);
-      setVisible(true);
-    } else {
-      setXummPayload(null);
-    }
   };
 
   const connectWallet = async () => {
@@ -228,7 +193,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         setXummPayload(null);
       }
     } catch (error) {
-      toast.error('Something went wrong.');
+      toast.error(NOTIFY)
     }
 
     setIsLoading(false);
@@ -282,10 +247,10 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         if (opened) {
         } else if (expired) {
           closeSocket(ws);
-          toast.error('Transaction expired.');
+          toast.error(NOTIFY)
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
-          toast.error('Transaction failed to sign.');
+          toast.error(FAIL_SIGN)
         } else if (signed) {
           fetch(`https://eatozee-crypto.app/api/nftoupon/cargo`, {
             method: 'POST',
@@ -463,6 +428,8 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                     color={validation ? 'error' : 'primary'}
                     label="Description"
                     placeholder="Enter your amazing description."
+                    helperText={validation ? 'Description is required' : `${charCounter}/200`}
+                    helperColor={validation ? 'error' : 'primary'}
                     readOnly={isEmpty(details.description) ? false : true}
                     value={
                       isEmpty(details.description)
