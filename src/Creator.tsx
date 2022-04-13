@@ -176,6 +176,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         setVisible(true);
       } else {
         setXummPayload(null);
+        toast.error(ERROR_IN_API)
       }
     }
   };
