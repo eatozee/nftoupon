@@ -22,29 +22,23 @@ import confetti from 'canvas-confetti';
 import { Connect } from './Connect';
 import { Toaster, toast } from 'react-hot-toast';
 import { fetcher } from './common/helper';
-import { CONNECT_WALLET_URL } from './common/constants';
-
-const DETAILS = {
-  id: 0,
-  title: '',
-  description: '',
-  imageUrl: '',
-  status: '',
-  offer: '',
-  date: '',
-  tokenOfferIndex: '',
-  merchantCryptoWalletAddress: '',
-  visibility: false,
-};
-
-type ResponsePayload = {
+import {
+  ACCEPT_OFFER_URL,
+  CONNECT_WALLET_URL,
+  GET_DETAILS_URL,
+  NFTokenAcceptOffer_URL,
+  NFTokenMint_URL,
+  REJECT_OFFER_URL,
+  SEND_CREATOR_DETAILS_URL,
+} from './common/constants';
+interface ResponsePayload {
   uuid: string;
   refs: {
     qr_png: string;
     websocket_status: string;
   };
   imageUrl: string;
-};
+}
 
 type Props = {
   NFToupon_Key: string;
@@ -120,24 +114,14 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   };
 
   const acceptOffer = async () => {
-    const response = await fetch(
-      `https://eatozee-crypto.app/api/nftoupon/offer/accept`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'NFToupon-Key': NFToupon_Key,
-        },
-        body: JSON.stringify({
-          tokenOfferIndex: details.tokenOfferIndex,
-          address: walletAddress,
-        }),
-      }
-    );
-    const { payload } = await response.json();
+    const payload = {
+      tokenOfferIndex: details.tokenOfferIndex,
+      address: walletAddress,
+    };
+    const { result } = await fetcher(NFToupon_Key, ACCEPT_OFFER_URL, payload);
 
-    if (!isEmpty(payload)) {
-      setXummPayload(payload);
+    if (!isEmpty(result)) {
+      setXummPayload(result);
       setVisible(true);
     } else {
       setXummPayload(null);
@@ -145,38 +129,20 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   };
 
   const rejectOffer = async () => {
-    await fetch('https://eatozee-crypto.app/api/nftoupon/creator/update', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'NFToupon-Key': NFToupon_Key,
-      },
-      body: JSON.stringify({
-        status: 'Declined',
-        id: details.id,
-      }),
-    });
+    const payload = { status: 'Declined', id: details.id };
+    await fetcher(NFToupon_Key, REJECT_OFFER_URL, payload);
   };
 
   const sendDetails = async () => {
-    const response = await fetch(
-      `https://eatozee-crypto.app/api/nftoupon/creator/mint`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'NFToupon-Key': NFToupon_Key,
-        },
-        body: JSON.stringify({
-          file: src,
-          address: walletAddress,
-        }),
-      }
+    const payload = { file: src, address: walletAddress };
+    const { result } = await fetcher(
+      NFToupon_Key,
+      SEND_CREATOR_DETAILS_URL,
+      payload
     );
-    const { payload } = await response.json();
 
-    if (!isEmpty(payload)) {
-      setXummPayload(payload);
+    if (!isEmpty(result)) {
+      setXummPayload(result);
       setVisible(true);
     } else {
       setXummPayload(null);
@@ -211,23 +177,15 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   useEffect(() => {
     const getDetails = async () => {
       try {
-        const respose = await fetch(
-          'https://eatozee-crypto.app/api/nftoupon/getMeta',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
-            },
-            body: JSON.stringify({
-              address: walletAddress,
-            }),
-          }
+        const payload = { address: walletAddress };
+        const { nftoupons } = await fetcher(
+          NFToupon_Key,
+          GET_DETAILS_URL,
+          payload
         );
-        const { nftoupons } = await respose.json();
         setData(nftoupons);
       } catch (error) {
-        console.log('error', error);
+        toast.error('Something went wrong.');
       }
     };
     if (!isEmpty(walletAddress)) {
@@ -274,40 +232,24 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   useEffect(() => {
     if (transactionType === 'NFTokenMint') {
       const saveTokens = async () => {
-        await fetch(
-          'https://eatozee-crypto.app/api/nftoupon/creator/saveTokens',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
-            },
-            body: JSON.stringify({
-              address: walletAddress,
-              title: '',
-              description: textAreaValue,
-              status: 'Pending',
-              imageUrl: xummPayload?.imageUrl,
-            }),
-          }
-        );
+        const payload = {
+          address: walletAddress,
+          title: '',
+          description: textAreaValue,
+          status: 'Pending',
+          imageUrl: xummPayload?.imageUrl,
+        };
+        await fetcher(NFToupon_Key, NFTokenMint_URL, { payload });
       };
+
       saveTokens();
       handleConfetti();
     } else if (transactionType === 'NFTokenAcceptOffer') {
       const updateTokenStatus = async () => {
-        await fetch('https://eatozee-crypto.app/api/nftoupon/creator/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'NFToupon-Key': NFToupon_Key,
-          },
-          body: JSON.stringify({
-            status: 'Created',
-            id: details.id,
-          }),
-        });
+        const payload = { status: 'Created', id: details.id };
+        await fetcher(NFToupon_Key, NFTokenAcceptOffer_URL, { payload });
       };
+
       updateTokenStatus();
     }
   }, [
@@ -348,23 +290,30 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         ) : (
           <Card>
             <Card.Header>
-              <Grid.Container justify="flex-start" alignItems="center">
+              <Grid.Container justify="flex-start">
                 <Grid xs={8}>
-                  {details.visibility ? (
+                  {details.visibility && (
                     <Button
                       auto
                       size={'sm'}
                       css={{ height: '40px', pl: '0px' }}
-                      onClick={() => {
-                        // reset the values
-                        setTextAreaValue('');
-                        setDetails(DETAILS);
-                      }}
+                      onClick={() =>
+                        setDetails({
+                          id: 0,
+                          title: '',
+                          description: '',
+                          imageUrl: '',
+                          status: '',
+                          offer: '',
+                          date: '',
+                          tokenOfferIndex: '',
+                          merchantCryptoWalletAddress: '',
+                          visibility: false,
+                        })
+                      }
                       light
                       icon={<ChevronLeft set="light" />}
                     />
-                  ) : (
-                    <Text h4>NFToupon</Text>
                   )}
                 </Grid>
                 <Grid xs={4}>
@@ -379,7 +328,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
             <Card shadow={false} css={{ borderRadius: '0' }}>
               <Card.Image
                 showSkeleton
-                src={isEmpty(details.imageUrl) ? imageURL : details.imageUrl}
+                src={imageURL}
                 height={200}
                 width="100%"
                 alt="NFT Preview"
@@ -412,10 +361,99 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 
             <Divider />
             <Card.Body css={{ justifyContent: 'center' }}>
-              <Spacer y={1} />
-
-              {isEmpty(details.description) && (
+              {details.visibility ? (
                 <>
+                  <Container display="flex" justify="center" fluid>
+                    <img height="180px" src={details.imageUrl} alt="NFT" />
+                  </Container>
+                  <Spacer y={0.5} />
+                  <Input
+                    readOnly
+                    width="100%"
+                    label="Title"
+                    initialValue={details.title}
+                  />
+                  <Spacer y={0.5} />
+                  <Textarea
+                    readOnly
+                    width="100%"
+                    label="Description"
+                    initialValue={details.description}
+                    maxRows={4}
+                  />
+                  <Spacer y={0.5} />
+                  <Grid.Container>
+                    <Row>
+                      <Input
+                        readOnly
+                        width="100%"
+                        required
+                        label="Offer"
+                        type="number"
+                        labelRight="XRP"
+                        min={1}
+                        initialValue={details.offer}
+                      />
+                      <Spacer y={0.5} />
+                      <Input
+                        readOnly
+                        initialValue={details.date}
+                        width="100%"
+                        required
+                        label="Date"
+                      />
+                    </Row>
+                  </Grid.Container>
+                  <Spacer y={0.8} />
+
+                  <Row justify="space-around">
+                    {details.status === 'Pending' ? (
+                      <>
+                        <Button
+                          size="sm"
+                          color="success"
+                          css={{ height: '40px' }}
+                          disabled
+                        >
+                          Accept
+                        </Button>
+                        <Spacer y={0.5} />
+                        <Button
+                          size="sm"
+                          color="error"
+                          css={{ height: '40px' }}
+                          disabled
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          size="xs"
+                          color="success"
+                          css={{ height: '40px' }}
+                          onClick={acceptOffer}
+                        >
+                          Accept
+                        </Button>
+                        <Spacer y={0.5} />
+                        <Button
+                          size="xs"
+                          color="error"
+                          css={{ height: '40px' }}
+                          onClick={rejectOffer}
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    )}
+                  </Row>
+                </>
+              ) : (
+                <>
+                  <Spacer y={1} />
+
                   <Textarea
                     bordered
                     shadow={false}
@@ -423,12 +461,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                     helperText={`${charCounter}/200`}
                     label="Description"
                     placeholder="Enter your amazing description."
-                    readOnly={isEmpty(details.description) ? false : true}
-                    value={
-                      isEmpty(details.description)
-                        ? textAreaValue
-                        : details.description
-                    }
+                    value={textAreaValue}
                     onChange={(ev: any): void => {
                       const length = ev.target.value.length;
 
@@ -438,12 +471,9 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                       }
                     }}
                   />
-                  <Spacer y={1.5} />
-                </>
-              )}
 
-              {isEmpty(details.imageUrl) && (
-                <>
+                  <Spacer y={1.5} />
+
                   <Input
                     hidden={true}
                     css={{
@@ -470,59 +500,8 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                   >
                     Choose file
                   </label>
-                </>
-              )}
-
-              <Spacer y={1} />
-
-              {!isEmpty(details.offer) && (
-                <>
-                  <Row>
-                    <Input
-                      readOnly
-                      width="100%"
-                      required
-                      label="Offer"
-                      type="number"
-                      labelRight="XRP"
-                      initialValue={details.offer}
-                    />
-                    <Spacer y={0.5} />
-                    <Input
-                      readOnly
-                      initialValue={details.date}
-                      width="100%"
-                      required
-                      label="Date"
-                    />
-                  </Row>
-
                   <Spacer y={1} />
-                </>
-              )}
 
-              {!isEmpty(details.id) && details.status !== 'Pending' ? (
-                <Row>
-                  <Button
-                    size="sm"
-                    color="success"
-                    css={{ width: '100%', height: '40px' }}
-                    onClick={acceptOffer}
-                  >
-                    Accept
-                  </Button>
-                  <Spacer y={0.5} />
-                  <Button
-                    size="sm"
-                    color="error"
-                    css={{ width: '100%', height: '40px' }}
-                    onClick={rejectOffer}
-                  >
-                    Reject
-                  </Button>
-                </Row>
-              ) : (
-                details.status !== 'Pending' && (
                   <Row justify="flex-end">
                     <Button
                       auto
@@ -532,55 +511,50 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                       NFToupon
                     </Button>
                   </Row>
-                )
+                </>
               )}
             </Card.Body>
 
             {data.length > 0 && (
               <>
-                <Spacer y={1} />
                 <Grid.Container gap={1} justify="center">
-                  {currentPosts.map((post: any) => (
-                    <Grid
-                      lg={3}
-                      justify="center"
-                      key={`nftoupon-post-${post.id}`}
-                    >
-                      <Avatar
-                        zoomed
-                        pointer
-                        squared
-                        onClick={() => {
-                          setTextAreaValue(post.description);
-                          setDetails({
-                            id: post.id,
-                            title: post.title,
-                            description: post.description,
-                            imageUrl: post.imageUrl,
-                            status: post.status,
-                            offer: post.offer,
-                            date: post.date,
-                            tokenOfferIndex: post.tokenOfferIndex,
-                            merchantCryptoWalletAddress:
-                              post.merchantCryptoWalletAddress,
-                            visibility: true,
-                          });
-                        }}
-                        bordered
-                        color={
-                          post.status === 'Pending'
-                            ? 'warning'
-                            : post.status === 'Accepted'
-                            ? 'success'
-                            : 'error'
-                        }
-                        size="xl"
-                        src={post.imageUrl}
-                      />
-                    </Grid>
-                  ))}
+                  <Row justify="center">
+                    {currentPosts.map((post: any) => (
+                      <Grid lg={3}>
+                        <Avatar
+                          zoomed
+                          pointer
+                          squared
+                          onClick={() =>
+                            setDetails({
+                              id: post.id,
+                              title: post.title,
+                              description: post.description,
+                              imageUrl: post.imageUrl,
+                              status: post.status,
+                              offer: post.offer,
+                              date: post.date,
+                              tokenOfferIndex: post.tokenOfferIndex,
+                              merchantCryptoWalletAddress:
+                                post.merchantCryptoWalletAddress,
+                              visibility: true,
+                            })
+                          }
+                          bordered
+                          color={
+                            post.status === 'Pending'
+                              ? 'warning'
+                              : post.status === 'Accepted'
+                              ? 'success'
+                              : 'error'
+                          }
+                          size="xl"
+                          src={post.imageUrl}
+                        />
+                      </Grid>
+                    ))}
+                  </Row>
 
-                  <Spacer y={1} />
                   <Row justify="center">
                     <Pagination
                       rounded
@@ -594,7 +568,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                 </Grid.Container>
               </>
             )}
-
             <Card.Footer
               css={{
                 justifyContent: 'center',
