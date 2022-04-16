@@ -1,14 +1,10 @@
-import { Button } from "@acme/core";
-import { useIsomorphicLayoutEffect } from "@acme/utils";
+import { Creator } from "nftoupon";
 
 export default function Docs() {
-  useIsomorphicLayoutEffect(() => {
-    console.log("Acme docs page");
-  }, []);
-  return (
-    <div>
-      <h1>Acme Documentation</h1>
-      <Button>Click me</Button>
-    </div>
-  );
+	return (
+		<div>
+			<h2>NFToupon Documentation in progress</h2>
+			<Creator NFToupon_Key="your-key" />
+		</div>
+	);
 }

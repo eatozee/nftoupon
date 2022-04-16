@@ -1,6 +1,6 @@
 {
-  "name": "@acme/utils",
-  "version": "0.0.0",
+  "name": "nftoupon",
+  "version": "1.0.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -16,13 +16,21 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "devDependencies": {
-    "@acme/tsconfig": "*",
     "@types/react": "^17.0.13",
     "@types/react-dom": "^17.0.8",
-    "eslint-preset-acme": "*",
     "react": "^17.0.2",
     "tsup": "^5.10.1",
+    "lodash": "^4.17.21",
+    "@types/canvas-confetti": "^1.4.2",
+    "@types/lodash": "^4.14.179",
+    "react-hot-toast": "^2.2.0",
     "typescript": "^4.5.3"
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.5.1",
+    "@nextui-org/react": "^1.0.8-beta.5",
+    "react-iconly": "^2.2.5",
+    "react-icons": "^4.3.1"
   },
   "publishConfig": {
     "access": "public"

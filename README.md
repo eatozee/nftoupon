@@ -1,62 +1,64 @@
-# Turborepo Design System starter
+# nftoupon
 
-This is an official React design system starter powered by Turborepo.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## What's inside?
+**Note - The widget is on Testnet (xls20-sandbox.rippletest.net:51233), the development is in progress.**
 
-This Turborepo includes the following packages and apps:
+Widget will help you to generate NFTs on XRPL which in turn you can use as coupons, which we call NFToupons
 
-### Apps and Packages
+## Milestone
 
-- `docs`: A placeholder documentation site powered by [Next.js](https://nextjs.org)
-- `@acme/core`: core React components
-- `@acme/utils`: shared React utilities
-- `@acme/tsconfig`: shared `tsconfig.json`s used throughout the monorepo
-- `eslint-preset-acme`: ESLint preset
+[NFToupon milestone](https://github.com/eatozee/nftoupon/blob/master/MILESTONE.md)
 
-Each package and app is 100% [Typescript](https://www.typescriptlang.org/).
+## Installing NFToupon
 
-### Utilities
+You can install this module as a component from NPM:
 
-This turborepo has some additional tools already setup for you:
+> npm i nftoupon
 
-- [Typescript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+## Getting Started
 
-## Using this example
+You will require a unique `NFToupon-KEY` to use it in your project build. You can contact `admin@eatozee.com` to get your unique `NFToupon-KEY`.
 
-We do not have a starter yet in `create-turbo` for this quite yet. If you want to use this in the interim, you run the following command:
+## Usage
 
-```sh
-npx degit vercel/turborepo/examples/design-system design-system
-cd design-system
-yarn install
-git init . && git add . && git commit -m "Init"
+To start using the components, please follow these steps:
+
+1. Wrap your application with the `Creator`, `Arbiter` & `Collectibles` components provided by
+   **nftoupon**.
+
+```jsx
+import { Creator, Arbiter, Collectibles } from "nftoupon";
 ```
 
-### Changing the NPM organization scope
+2. Now you can start using components like so!:
 
-The NPM organization scope for this design system starter is `@acme`. To change this, it's a bit manual at the moment, but you'll need to do the following:
+```jsx
+import { Arbiter } from "nftoupon";
 
-- Rename folders in `packages/*` to replace `acme` with your desired scope
-- Search and replace `acme` with your desired scope
-- Re-run `yarn install`
-
-### Publishing packages
-
-#### NPM
-
-If you want to publish package to the public NPM registry and make them publicly available, this is already setup for you.
-
-To publish packages to a private NPM organization scope, **remove** the following from each of the `package.json`'s
-
-```diff
-- "publishConfig": {
--  "access": "public"
-- },
+const ExampleOne = () => <Arbiter />;
 ```
 
-#### GitHub Package Registry
+```jsx
+import { Creator } from "nftoupon";
 
-See [Working with the npm registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#publishing-a-package-using-publishconfig-in-the-packagejson-file)
+const ExampleOne = () => <Creator />;
+```
+
+```jsx
+import { Collectibles } from "nftoupon";
+
+const ExampleOne = () => <Collectibles />;
+```
+
+## Demo Videos
+
+### Link below is the demo on how to use `Merchant` component
+
+1. https://www.youtube.com/watch?v=rcRr2Z4MXC0
+
+### Link below is the demo on how to use `Creator` component
+
+2. https://www.youtube.com/watch?v=s-01b1TpxJI
+
+**Note: You will then require a `NFToupon-KEY` to use it in your project build. You can contact `admin@eatozee.com` to get your unique `NFToupon-KEY`.**

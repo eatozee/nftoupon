@@ -18,6 +18,9 @@
     "turbo": "latest"
   },
   "dependencies": {
-    "@changesets/cli": "^2.22.0"
+    "@changesets/cli": "^2.22.0",
+    "eslint-config-next": "^12.0.8",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-react": "7.28.0"
   }
 }
