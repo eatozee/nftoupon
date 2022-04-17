@@ -1,6 +1,6 @@
 {
   "name": "nftoupon",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -24,13 +24,13 @@
     "@types/canvas-confetti": "^1.4.2",
     "@types/lodash": "^4.14.179",
     "react-hot-toast": "^2.2.0",
-    "typescript": "^4.5.3"
+    "canvas-confetti": "^1.5.1",
+    "typescript": "^4.5.3",
+    "react-icons": "^4.3.1"
   },
   "dependencies": {
-    "canvas-confetti": "^1.5.1",
     "@nextui-org/react": "^1.0.8-beta.5",
-    "react-iconly": "^2.2.5",
-    "react-icons": "^4.3.1"
+    "react-iconly": "^2.2.5"
   },
   "publishConfig": {
     "access": "public"
