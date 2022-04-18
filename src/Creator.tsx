@@ -26,9 +26,8 @@ import {
   ACCEPT_OFFER_URL,
   CONNECT_WALLET_URL,
   GET_DETAILS_URL,
-  NFTokenAcceptOffer_URL,
-  NFTokenMint_URL,
-  REJECT_OFFER_URL,
+  CREATOR_OFFER_URL,
+  NFTOKEN_MINT_URL,
   SEND_CREATOR_DETAILS_URL,
 } from './common/constants';
 interface ResponsePayload {
@@ -118,7 +117,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       tokenOfferIndex: details.tokenOfferIndex,
       address: walletAddress,
     };
-    const { result } = await fetcher(NFToupon_Key, ACCEPT_OFFER_URL, payload);
+    const result = await fetcher(NFToupon_Key, ACCEPT_OFFER_URL, payload);
 
     if (!isEmpty(result)) {
       setXummPayload(result);
@@ -130,12 +129,12 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 
   const rejectOffer = async () => {
     const payload = { status: 'Declined', id: details.id };
-    await fetcher(NFToupon_Key, REJECT_OFFER_URL, payload);
+    await fetcher(NFToupon_Key, CREATOR_OFFER_URL, payload);
   };
 
   const sendDetails = async () => {
     const payload = { file: src, address: walletAddress };
-    const { result } = await fetcher(
+    const result  = await fetcher(
       NFToupon_Key,
       SEND_CREATOR_DETAILS_URL,
       payload
@@ -193,6 +192,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     }
   }, [walletAddress, transactionType, NFToupon_Key]);
 
+
   useEffect(() => {
     if (!isEmpty(xummPayload)) {
       const wsURL = xummPayload?.refs?.websocket_status;
@@ -229,6 +229,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     }
   }, [xummPayload, NFToupon_Key]);
 
+
   useEffect(() => {
     if (transactionType === 'NFTokenMint') {
       const saveTokens = async () => {
@@ -239,7 +240,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
           status: 'Pending',
           imageUrl: xummPayload?.imageUrl,
         };
-        await fetcher(NFToupon_Key, NFTokenMint_URL, { payload });
+        await fetcher(NFToupon_Key, NFTOKEN_MINT_URL, { payload });
       };
 
       saveTokens();
@@ -247,7 +248,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
     } else if (transactionType === 'NFTokenAcceptOffer') {
       const updateTokenStatus = async () => {
         const payload = { status: 'Created', id: details.id };
-        await fetcher(NFToupon_Key, NFTokenAcceptOffer_URL, { payload });
+        await fetcher(NFToupon_Key, CREATOR_OFFER_URL, { payload });
       };
 
       updateTokenStatus();

@@ -19,11 +19,9 @@ import isEmpty from 'lodash/isEmpty';
 import { fetcher } from './common/helper';
 import {
   BUY_POINT_URL,
-  CARGO_URL,
   CONNECT_WALLET_URL,
   GET_MERCHANT_DETAILS_URL,
-  NFTokenCreateOffer_URL,
-  REJECT_OFFER_MERCHANT_URL,
+  MERCHANT_OFFER_URL
 } from './common/constants';
 
 type NFTouponPayload = {
@@ -87,6 +85,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       const { payload } = await fetcher(NFToupon_Key, CONNECT_WALLET_URL);
       if (!isEmpty(payload)) {
         setXummPayload(payload);
+        setLockParameter(false);
         setVisible(true);
       } else {
         setXummPayload(null);
@@ -111,14 +110,22 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
           event.data
         );
         if (opened) {
-          // setLockParameter(false);
+          setLockParameter(false);
         } else if (expired) {
           closeSocket(ws);
         } else if (!isEmpty(payload_uuidv4) && !signed) {
           closeSocket(ws);
         } else if (signed) {
-          const payload = { payload_uuidv4: payload_uuidv4 };
-          fetcher(NFToupon_Key, CARGO_URL, payload)
+          fetch(`https://eatozee-crypto.app/api/nftoupon/cargo`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'NFToupon-Key': NFToupon_Key,
+            },
+            body: JSON.stringify({
+              payload_uuidv4,
+            }),
+          })
             .then((res) => res.json())
             .then((json) => {
               setWalletAddress(json.payload);
@@ -130,7 +137,9 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
         }
       };
     }
-  }, [xummPayload, NFToupon_Key]);
+  }, [xummPayload,
+    NFToupon_Key,
+  ]);
 
   useEffect(() => {
     if (transactionType === 'NFTokenCreateOffer') {
@@ -145,12 +154,14 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
           tokenId: details.tokenId,
         };
 
-        await fetcher(NFToupon_Key, NFTokenCreateOffer_URL, payload);
+        await fetcher(NFToupon_Key, MERCHANT_OFFER_URL, payload);
       };
 
       update();
     }
-  }, [transactionType, NFToupon_Key, details, sendProperties, walletAddress]);
+  }, [transactionType, 
+    NFToupon_Key
+    , details, sendProperties, walletAddress]);
 
   const rejectHandler = async () => {
     const payload = {
@@ -162,7 +173,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       transactionType: '',
     };
 
-    await fetcher(NFToupon_Key, REJECT_OFFER_MERCHANT_URL, payload);
+    await fetcher(NFToupon_Key, MERCHANT_OFFER_URL, payload);
   };
 
   useEffect(() => {
@@ -190,7 +201,9 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       }
     };
     getDetails();
-  }, [transactionType, NFToupon_Key]);
+  }, [transactionType,
+    NFToupon_Key
+  ]);
 
   const sendStatus = async (sendDetails: {
     id: number;
@@ -208,7 +221,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
         tokenId: sendDetails.tokenId,
       };
 
-      const { result } = await fetcher(NFToupon_Key, BUY_POINT_URL, payload);
+      const result  = await fetcher(NFToupon_Key, BUY_POINT_URL, payload);
       if (!isEmpty(result)) {
         setSendProperties({
           status: sendDetails.status,
