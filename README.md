@@ -12,7 +12,7 @@ Widget will help you to generate NFTs on XRPL which in turn you can use as coupo
 
 ## Development setup
 
-> Make sure you have npm version >= 7, we use [turbo repo](https://turborepo.org/) for the project.
+> Make sure you have node 16 and npm version >= 7, we use [turbo repo](https://turborepo.org/) for the project.
 
 - git clone https://github.com/eatozee/nftoupon.git or fork and clone it
 - cd nftoupon
