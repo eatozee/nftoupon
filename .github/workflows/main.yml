@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           cache: "npm"
-          node-version: "14"
+          node-version: 16
       - name: Install dependencies
         run: npm install --legacy-peer-deps
       - name: Lint
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           cache: "npm"
-          node-version: "14"
+          node-version: 16
       - name: Install dependencies
         run: npm install --legacy-peer-deps
       - uses: actions/cache@v2
@@ -58,7 +58,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           cache: "npm"
-          node-version: "14"
+          node-version: 16
       - name: Install dependencies
         run: npm install --legacy-peer-deps
       - name: Test
