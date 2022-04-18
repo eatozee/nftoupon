@@ -10,6 +10,15 @@ Widget will help you to generate NFTs on XRPL which in turn you can use as coupo
 
 [NFToupon milestone](https://github.com/eatozee/nftoupon/blob/master/MILESTONE.md)
 
+## Development setup
+
+> Make sure you have npm version >= 7, we use [turbo repo](https://turborepo.org/) for the project.
+
+- git clone https://github.com/eatozee/nftoupon.git or fork and clone it
+- cd nftoupon
+- npm install
+- npm run dev
+
 ## Installing NFToupon
 
 You can install this module as a component from NPM:
@@ -36,19 +45,19 @@ import { Creator, Arbiter, Collectibles } from "nftoupon";
 ```jsx
 import { Arbiter } from "nftoupon";
 
-const ExampleOne = () => <Arbiter />;
+const ExampleOne = () => <Arbiter NFToupon_Key="your-api-key" />;
 ```
 
 ```jsx
 import { Creator } from "nftoupon";
 
-const ExampleOne = () => <Creator />;
+const ExampleOne = () => <Creator NFToupon_Key="your-api-key" />;
 ```
 
 ```jsx
 import { Collectibles } from "nftoupon";
 
-const ExampleOne = () => <Collectibles />;
+const ExampleOne = () => <Collectibles NFToupon_Key="your-api-key" />;
 ```
 
 ## Demo Videos
