@@ -1,5 +1,5 @@
-import { Col, Link, Text } from '@nextui-org/react';
-import React from 'react';
+import { Col, Link, Text } from "@nextui-org/react";
+import React from "react";
 
 type prop = {
   disConnectWallet: () => void;
@@ -10,12 +10,12 @@ export const Header = (props: prop) => {
   return (
     <Col>
       <Text
-        css={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '12px' }}
+        css={{ overflow: "hidden", textOverflow: "ellipsis", fontSize: "12px" }}
       >
         {props.walletAddress}
       </Text>
       <Link
-        css={{ color: '#FB7085', fontSize: '12px' }}
+        css={{ color: "#FB7085", fontSize: "12px" }}
         onClick={props.disConnectWallet}
       >
         @disconnect

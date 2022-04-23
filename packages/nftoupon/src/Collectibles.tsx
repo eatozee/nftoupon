@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { NextUIProvider, Card, Grid, Row, Text } from '@nextui-org/react';
-import isEmpty from 'lodash/isEmpty';
+import React, { useEffect } from "react";
+import { NextUIProvider, Card, Grid, Row, Text } from "@nextui-org/react";
+import isEmpty from "lodash/isEmpty";
 
 type Props = {
   NFToupon_Key: string;
@@ -19,19 +19,19 @@ export const Collectibles = ({ NFToupon_Key }: Props) => {
     const getDetails = async () => {
       try {
         const respose = await fetch(
-          'https://eatozee-crypto.app/api/nftoupon/merchant/get',
+          "https://eatozee-crypto.app/api/nftoupon/merchant/get",
           {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
-              'NFToupon-Key': NFToupon_Key,
+              "Content-Type": "application/json",
+              "NFToupon-Key": NFToupon_Key,
             },
           }
         );
         const { nftoupons } = await respose.json();
         setList(nftoupons);
       } catch (error) {
-        console.log('error', error);
+        console.log("error", error);
       }
     };
 

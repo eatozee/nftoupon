@@ -6,10 +6,10 @@ import {
   Loading,
   Text,
   Spacer,
-} from '@nextui-org/react';
-import React from 'react';
-import isEmpty from 'lodash/isEmpty';
-import { Wallet } from 'react-iconly';
+} from "@nextui-org/react";
+import React from "react";
+import isEmpty from "lodash/isEmpty";
+import { Wallet } from "react-iconly";
 
 type ResponsePayload = {
   uuid: string;
@@ -30,7 +30,7 @@ type ConnectProps = {
 
 export const Connect = (props: ConnectProps) => {
   return (
-    <Card css={{ justifyContent: 'center' }}>
+    <Card css={{ justifyContent: "center" }}>
       <Button
         disabled={props.isLoading}
         bordered={props.isLoading}
@@ -40,7 +40,7 @@ export const Connect = (props: ConnectProps) => {
         {props.isLoading ? (
           <Loading type="points" color="default" size="sm" />
         ) : (
-          'Connect'
+          "Connect"
         )}
       </Button>
 
@@ -55,7 +55,7 @@ export const Connect = (props: ConnectProps) => {
             <Image
               width="100%"
               height="100%"
-              src={props.xummPayload?.refs?.qr_png || ''}
+              src={props.xummPayload?.refs?.qr_png || ""}
               alt="qr_code"
             />
           ) : (
@@ -65,17 +65,17 @@ export const Connect = (props: ConnectProps) => {
       </Modal>
       <Card.Footer
         css={{
-          justifyContent: 'center',
+          justifyContent: "center",
         }}
       >
         <Text
           size="14px"
-          css={{ display: 'flex', alignItems: 'center', color: '$gray300' }}
+          css={{ display: "flex", alignItems: "center", color: "$gray300" }}
         >
           <Image
             width={32}
             height={23}
-            css={{ filter: 'grayScale(50%)' }}
+            css={{ filter: "grayScale(50%)" }}
             alt="footer logo"
             src="https://djfteveaaqqdylrqovkj.supabase.co/storage/v1/object/public/beta-eatozee-web/banner-resized-img.png"
           />
