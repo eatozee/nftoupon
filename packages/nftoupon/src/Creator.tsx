@@ -457,10 +457,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                     }}
                   />
                   <Spacer y={1.5} />
-                  {details.status === "Pending" ||
-                  details.status === "Rejected" ? (
-                    <Text>Your offer is {details.status}</Text>
-                  ) : null}
                 </>
               )}
 
@@ -533,7 +529,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                 <>
                   {details.status === "Pending" ||
                   details.status === "Rejected" ? (
-                    <Text>Your offer is {details.status}</Text>
+                    <Text size={16}>Your offer is {details.status}</Text>
                   ) : (
                     <>
                       <Row>
