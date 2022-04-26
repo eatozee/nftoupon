@@ -5,8 +5,8 @@ import {
   Textarea,
   Row,
   Button,
-} from '@nextui-org/react';
-import React from 'react';
+} from "@nextui-org/react";
+import React from "react";
 
 type Details = {
   id: number;
@@ -72,7 +72,7 @@ export const Details = (props: Details) => {
           labelRight="XRP"
           min={1}
           width="100%"
-          initialValue={'1'}
+          initialValue={"1"}
           onChange={(e) => {
             offer = e.target.value;
           }}
@@ -97,9 +97,9 @@ export const Details = (props: Details) => {
 
       <Row>
         <Button
-          css={{ height: '40px', width: '100%', minWidth: 0 }}
+          css={{ height: "40px", width: "100%", minWidth: 0 }}
           color="success"
-          onClick={() => clickEvent('Accepted')}
+          onClick={() => clickEvent("Accepted")}
           disabled={props.lockParameter}
         >
           Make Offer
@@ -108,7 +108,7 @@ export const Details = (props: Details) => {
         <Spacer x={2} />
 
         <Button
-          css={{ height: '40px', width: '100%', minWidth: 0 }}
+          css={{ height: "40px", width: "100%", minWidth: 0 }}
           color="error"
           onClick={props.rejectHandler}
           disabled={props.lockParameter}
