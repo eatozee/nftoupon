@@ -88,6 +88,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [data, setData] = React.useState<NFTouponPayload>([]);
 
+  const [base64String, setBase64String] = React.useState<string | null>(null);
   const [imageURL, setImageURL] = React.useState<any>(DEFAULT_PREVIEW_IMG_URL);
   const [textAreaValue, setTextAreaValue] = React.useState<string>(""); //storing description input
   const [validation, setValidation] = React.useState<string>("");
@@ -110,7 +111,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       origin: { y: 0.5 },
     });
   };
-  const [base64String, setBase64String] = React.useState<string | null>(null);
+
   const uploadFile = (event: any) => {
     const reader = new FileReader();
     reader.onload = async function () {
@@ -175,7 +176,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
       setIsLoading(true);
       try {
         const options = {
-          file: base64String, // replace src to base64String state val
+          file: base64String,
           address: walletAddress,
         };
         const { payload } = await fetcher(
@@ -242,10 +243,14 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   }, [walletAddress, transactionType, NFToupon_Key]);
 
   const signValidator = async (option: any, ws: WebSocket) => {
-    const result = await fetcher(NFToupon_Key, CARGO_URL, option);
-    setWalletAddress(result?.payload);
-    setTransactionType(result?.tx_type);
-    closeSocket(ws);
+    try {
+      const result = await fetcher(NFToupon_Key, CARGO_URL, option);
+      setWalletAddress(result?.payload);
+      setTransactionType(result?.tx_type);
+      closeSocket(ws);
+    } catch (error) {
+      toast.error(ERROR_IN_API);
+    }
   };
 
   useEffect(() => {
@@ -272,8 +277,8 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   }, [xummPayload, NFToupon_Key]);
 
   useEffect(() => {
-    if (transactionType === "NFTokenMint") {
-      try {
+    try {
+      if (transactionType === "NFTokenMint") {
         const saveTokens = async () => {
           const options = {
             address: walletAddress,
@@ -286,19 +291,15 @@ export const Creator = ({ NFToupon_Key }: Props) => {
         };
         saveTokens();
         handleConfetti();
-      } catch (error) {
-        toast.error(ERROR_IN_API);
-      }
-    } else if (transactionType === "NFTokenAcceptOffer") {
-      try {
+      } else if (transactionType === "NFTokenAcceptOffer") {
         const updateTokenStatus = async () => {
           const options = { status: "Accepted", id: details.id };
           await fetcher(NFToupon_Key, NFTOKEN_ACCEPT_OFFER_URL, options);
         };
         updateTokenStatus();
-      } catch (error) {
-        toast.error(ERROR_IN_API);
       }
+    } catch (error) {
+      toast.error(ERROR_IN_API);
     }
     if (
       transactionType === "NFTokenAcceptOffer" ||
@@ -456,6 +457,10 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                     }}
                   />
                   <Spacer y={1.5} />
+                  {details.status === "Pending" ||
+                  details.status === "Rejected" ? (
+                    <Text>Your offer is {details.status}</Text>
+                  ) : null}
                 </>
               )}
 
@@ -524,37 +529,43 @@ export const Creator = ({ NFToupon_Key }: Props) => {
                 </>
               )}
 
-              {!isEmpty(details.id) &&
-              details.status !== "Pending" &&
-              details.status !== "Declined" &&
-              details.status !== "Rejected" ? (
-                <Row>
-                  <Button
-                    size="sm"
-                    color="success"
-                    css={{ width: "100%", height: "40px" }}
-                    onClick={acceptOffer}
-                  >
-                    {isLoading ? (
-                      <Loading type="points" color="white" size="sm" />
-                    ) : (
-                      "Accept"
-                    )}
-                  </Button>
-                  <Spacer y={0.5} />
-                  <Button
-                    size="sm"
-                    color="error"
-                    css={{ width: "100%", height: "40px" }}
-                    onClick={rejectOffer}
-                  >
-                    {isLoading ? (
-                      <Loading type="points" color="white" size="sm" />
-                    ) : (
-                      "Reject"
-                    )}
-                  </Button>
-                </Row>
+              {!isEmpty(details.id) && details.status !== "Declined" ? (
+                <>
+                  {details.status === "Pending" ||
+                  details.status === "Rejected" ? (
+                    <Text>Your offer is {details.status}</Text>
+                  ) : (
+                    <>
+                      <Row>
+                        <Button
+                          size="sm"
+                          color="success"
+                          css={{ width: "100%", height: "40px" }}
+                          onClick={acceptOffer}
+                        >
+                          {isLoading ? (
+                            <Loading type="points" color="white" size="sm" />
+                          ) : (
+                            "Accept"
+                          )}
+                        </Button>
+                        <Spacer y={0.5} />
+                        <Button
+                          size="sm"
+                          color="error"
+                          css={{ width: "100%", height: "40px" }}
+                          onClick={rejectOffer}
+                        >
+                          {isLoading ? (
+                            <Loading type="points" color="white" size="sm" />
+                          ) : (
+                            "Reject"
+                          )}
+                        </Button>
+                      </Row>
+                    </>
+                  )}
+                </>
               ) : (
                 details.status !== "Pending" &&
                 details.status !== "Declined" &&
