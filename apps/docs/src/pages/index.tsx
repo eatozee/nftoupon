@@ -1,4 +1,4 @@
-import { Arbiter, Creator } from "nftoupon";
+import {Creator } from "nftoupon";
 
 export default function Docs() {
 	return (

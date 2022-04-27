@@ -31,6 +31,15 @@ import {
 import { fetcher } from "./common/helper";
 import { Connect } from "./Connect";
 import { Header } from "./components/Header";
+const DETAILS = {
+  id: 0,
+  title: "",
+  description: "",
+  imageUrl: "",
+  status: "",
+  cryptoWalletAddress: "",
+  tokenId: "",
+};
 type NFTouponPayload = {
   id: number;
   title: string;
@@ -60,16 +69,8 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
   const [imageURL, setImageURL] = React.useState<any>(
     "https://djfteveaaqqdylrqovkj.supabase.co/storage/v1/object/public/beta-eatozee-web/nft-free.webp"
   );
-  let localDate = new Date().toLocaleDateString('fr-CA');
-  const [details, setDetails] = React.useState({
-    id: 0,
-    title: "",
-    description: "",
-    imageUrl: "",
-    status: "",
-    cryptoWalletAddress: "",
-    tokenId: "",
-  });
+  const localDate = new Date().toLocaleDateString("en-CA");
+  const [details, setDetails] = React.useState(DETAILS);
   const [sendProperties, setSendProperties] = React.useState({
     expiryDate: "",
     offer: "",
@@ -121,7 +122,6 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     closeSocket(ws);
   };
   useEffect(() => {
-    console.log(localDate);
     if (!isEmpty(xummPayload)) {
       const wsURL = xummPayload?.refs?.websocket_status;
       const ws = new WebSocket(wsURL || "");
