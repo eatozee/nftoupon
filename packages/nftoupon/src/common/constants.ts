@@ -12,6 +12,11 @@ const CARGO_URL = `https://eatozee-crypto.app/api/nftoupon/cargo`;
 const NFTOKEN_MINT_URL = `https://eatozee-crypto.app/api/nftoupon/creator/saveTokens`;
 const NFTOKEN_ACCEPT_OFFER_URL = `https://eatozee-crypto.app/api/nftoupon/creator/update`;
 
+//Arbiter constants
+const NFTOKEN_CREATOR_OFFER_URL = `https://eatozee-crypto.app/api/nftoupon/merchant/update`;
+const GET_ARBITER_DETAILS_URL = `https://eatozee-crypto.app/api/nftoupon/merchant`;
+const ARBITER_BUY_URL = `https://eatozee-crypto.app/api/nftoupon/offer/buy`;
+
 export {
   CONNECT_WALLET_URL,
   ERROR_IN_API,
@@ -25,4 +30,7 @@ export {
   CARGO_URL,
   NFTOKEN_MINT_URL,
   NFTOKEN_ACCEPT_OFFER_URL,
+  NFTOKEN_CREATOR_OFFER_URL,
+  GET_ARBITER_DETAILS_URL,
+  ARBITER_BUY_URL
 };
