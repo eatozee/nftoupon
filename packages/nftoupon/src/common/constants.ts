@@ -18,6 +18,8 @@ const NFTOKEN_CREATOR_OFFER_URL = `https://eatozee-crypto.app/api/nftoupon/merch
 const GET_ARBITER_DETAILS_URL = `https://eatozee-crypto.app/api/nftoupon/merchant`;
 const ARBITER_BUY_URL = `https://eatozee-crypto.app/api/nftoupon/offer/buy`;
 
+const GET_COLLECTIBLES = 'https://eatozee-crypto.app/api/nftoupon/merchant/get'
+
 export {
   CONNECT_WALLET_URL,
   PREVIEW_IMAGE_URL,
@@ -35,4 +37,5 @@ export {
   NFTOKEN_CREATOR_OFFER_URL,
   GET_ARBITER_DETAILS_URL,
   ARBITER_BUY_URL,
+  GET_COLLECTIBLES
 };
