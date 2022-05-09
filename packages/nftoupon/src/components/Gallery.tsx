@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
 	AspectRatio,
 	HStack,
@@ -6,7 +7,6 @@ import {
 	StackProps,
 	useBreakpointValue,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 import {
 	Carousel,
@@ -20,11 +20,18 @@ interface GalleryProps {
 	images: ProductImage[];
 	aspectRatio?: number;
 	rootProps?: StackProps;
+	nftDetailIndex: number;
+	setNftDetailIndex: (index: number) => void;
 }
 
 export const Gallery = (props: GalleryProps) => {
-	const { images, aspectRatio = 4 / 3, rootProps } = props;
-	const [index, setIndex] = useState(0);
+	const {
+		images,
+		aspectRatio = 4 / 3,
+		nftDetailIndex,
+		setNftDetailIndex,
+		rootProps,
+	} = props;
 	const [currentSlide, setCurrentSlide] = useState(0);
 	const slidesPerView = useBreakpointValue({ base: 3, md: 5 });
 
@@ -46,17 +53,21 @@ export const Gallery = (props: GalleryProps) => {
 			/>
 			<Carousel ref={ref} direction="row" width="full">
 				{images.map((image, i) => (
-					<CarouselSlide key={i} onClick={() => setIndex(i)} cursor="pointer">
+					<CarouselSlide
+						key={i}
+						onClick={() => setNftDetailIndex(i)}
+						cursor="pointer"
+					>
 						<AspectRatio
 							ratio={aspectRatio}
 							transition="all 200ms"
-							opacity={index === i ? 1 : 0.4}
+							opacity={nftDetailIndex === i ? 1 : 0.4}
 							_hover={{ opacity: 1 }}
 						>
 							<Image
-								src={image.src}
+								src={image.imageUrl}
 								objectFit="cover"
-								alt={image.alt}
+								alt={image.description}
 								fallback={<Skeleton />}
 							/>
 						</AspectRatio>

@@ -6,8 +6,6 @@ import {
 	HStack,
 	Icon,
 	Square,
-	Text,
-	useColorModeValue,
 	VStack,
 	Input,
 } from "@chakra-ui/react";
@@ -21,16 +19,9 @@ export const Dropzone = (props: DropzoneProps) => {
 	const { uploadFile } = props;
 
 	return (
-		<Center
-			borderWidth="1px"
-			borderRadius="lg"
-			px="6"
-			py="4"
-			bg={useColorModeValue("white", "gray.800")}
-			{...props}
-		>
-			<VStack spacing="3">
-				<Square size="10" bg="bg-subtle" borderRadius="lg">
+		<Center borderWidth="1px" borderRadius="lg" px="6" py="4">
+			<VStack spacing="1">
+				<Square size="5" bg="bg-subtle" borderRadius="lg">
 					<Icon as={FiUploadCloud} boxSize="5" color="muted" />
 				</Square>
 				<VStack>
@@ -41,7 +32,7 @@ export const Dropzone = (props: DropzoneProps) => {
 								display: "none",
 							}}
 							type="file"
-							name="uploadFile"
+							name="uploadfile"
 							onChange={(event) => uploadFile(event)}
 						/>
 						<Button
@@ -55,9 +46,6 @@ export const Dropzone = (props: DropzoneProps) => {
 							Click to upload
 						</Button>
 					</HStack>
-					<Text fontSize="xs" color="muted">
-						PNG, JPG, WEBP or GIF
-					</Text>
 				</VStack>
 			</VStack>
 		</Center>
