@@ -14,8 +14,6 @@ import {
   useClipboard,
   Icon,
   HStack,
-  ButtonGroup,
-  IconButton,
   FormLabel,
   Input,
   NumberInput,
@@ -24,15 +22,13 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
 } from "@chakra-ui/react";
-import { Dropzone } from "./components/Dropzone";
-import { FiClipboard } from "react-icons/fi";
-import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { BsClipboardCheck, BsClipboard } from "react-icons/bs";
+
 import { Gallery } from "./components/Gallery";
-import { images } from "./common/data";
 import { Connect } from "./Connect";
 
 import isEmpty from "lodash/isEmpty";
-import { Toaster, toast } from "react-hot-toast";
+import { toast, Toaster } from "react-hot-toast";
 import {
   ERROR_IN_API,
   FAIL_SIGN,
@@ -44,6 +40,8 @@ import {
   ARBITER_BUY_URL,
 } from "./common/constants";
 import { fetcher } from "./common/helper";
+import { Footer } from "./components/Footer";
+import { NftModal } from "./components/NftModal";
 const DETAILS = {
   id: 0,
   title: "",
@@ -73,19 +71,17 @@ type Props = {
   NFToupon_Key: string;
 };
 export const Arbiter = ({ NFToupon_Key }: Props) => {
-  const { hasCopied, onCopy } = useClipboard("value");
-
-  console.log("inside the creator component ", hasCopied);
-
+  const [walletAddress, setWalletAddress] = React.useState<string>("");
+  const { hasCopied, onCopy } = useClipboard(walletAddress);
   const [transactionType, setTransactionType] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState({
+    connect: false,
+    accept: false,
+    reject: false,
+  });
   const [data, setData] = React.useState<NFTouponPayload>([]);
-  const [lockParameter, setLockParameter] = React.useState(true);
   const [offer, setOffer] = React.useState("");
   const [expiryDate, setExpiryDate] = React.useState("");
-  const [validation, setValidation] = React.useState("");
-  const [imageURL, setImageURL] = React.useState<any>(
-    "https://djfteveaaqqdylrqovkj.supabase.co/storage/v1/object/public/beta-eatozee-web/nft-free.webp"
-  );
   const localDate = new Date().toLocaleDateString("en-CA");
   const [details, setDetails] = React.useState(DETAILS);
   const [sendProperties, setSendProperties] = React.useState({
@@ -97,22 +93,19 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
   const [xummPayload, setXummPayload] = React.useState<ResponsePayload | null>(
     null
   );
-  const [walletAddress, setWalletAddress] = React.useState<string>("");
   const [visible, setVisible] = React.useState(false);
   const closeHandler = () => {
     setVisible(false);
   };
-  const [isLoading, setIsLoading] = React.useState(false);
-  //Logic for data in pagination where '4' is the data per page
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const indexOfLastPost = currentPage * 4;
-  const indexOfFirstPost = indexOfLastPost - 4;
-  const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
-  const changePage = (page: number) => {
-    setCurrentPage(page);
+  const [nftDetailIndex, setNftDetailIndex] = React.useState(0);
+
+  const updateNFTDetails = (index: number) => {
+    setNftDetailIndex(index);
+    setDetails(data[index]);
   };
+
   const connectWallet = async () => {
-    setIsLoading(true);
+    setIsLoading({ ...isLoading, connect: true });
     try {
       const { payload } = await fetcher(NFToupon_Key, CONNECT_WALLET_URL);
       if (!isEmpty(payload)) {
@@ -124,7 +117,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     } catch (error) {
       toast.error(ERROR_IN_API);
     }
-    setIsLoading(false);
+    setIsLoading({ ...isLoading, connect: false });
   };
   const closeSocket = (ws: WebSocket) => {
     ws.close();
@@ -135,7 +128,6 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     const result = await fetcher(NFToupon_Key, CARGO_URL, option);
     setWalletAddress(result?.payload);
     setTransactionType(result?.tx_type);
-    setLockParameter(false);
     closeSocket(ws);
   };
   useEffect(() => {
@@ -163,7 +155,6 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
 
   useEffect(() => {
     if (transactionType === "NFTokenCreateOffer") {
-      setIsLoading(true);
       try {
         const update = async () => {
           const options = {
@@ -181,10 +172,11 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       } catch (error) {
         toast.error(ERROR_IN_API);
       }
-      setIsLoading(false);
     }
   }, [transactionType, NFToupon_Key, details, sendProperties, walletAddress]);
+
   const rejectHandler = async () => {
+    setIsLoading({ ...isLoading, reject: true });
     try {
       const options = {
         id: details.id,
@@ -198,7 +190,9 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     } catch (error) {
       toast.error(ERROR_IN_API);
     }
+    setIsLoading({ ...isLoading, reject: false });
   };
+
 
   useEffect(() => {
     const getDetails = async () => {
@@ -234,13 +228,13 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     tokenId: string;
   }) => {
     if (isEmpty(offer) && !isEmpty(expiryDate)) {
-      setValidation("Empty Offer");
+      toast.error("Please add the Offer");
     } else if (!isEmpty(offer) && isEmpty(expiryDate)) {
-      setValidation("Empty Date");
+      toast.error("Please add Expiry Date");
     } else if (isEmpty(offer) && isEmpty(expiryDate)) {
-      setValidation("Both Empty");
+      toast.error("Empty Offer and Date");
     } else {
-      setIsLoading(true);
+      setIsLoading({ ...isLoading, accept: true });
       try {
         const options = {
           offer: sendDetails.offer,
@@ -268,193 +262,203 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       } catch (error) {
         toast.error(ERROR_IN_API);
       }
-      setIsLoading(false);
+      setIsLoading({ ...isLoading, accept: false });
     }
   };
-
   return (
     <ChakraProvider>
-      <Container
-        minHeight={"500px"}
-        width={"410px"}
-        justifyContent="center"
-        display={"flex"}
-      >
-        {isEmpty(walletAddress) ? (
-          <Connect
-            walletAddress={walletAddress}
+      <Toaster
+        containerStyle={{
+          marginTop: "20px",
+          position: "absolute",
+        }}
+      />
+      {isEmpty(walletAddress) ? (
+        <Connect
+          walletAddress={walletAddress}
+          closeHandler={closeHandler}
+          visible={visible}
+          connectWallet={connectWallet}
+          xummPayload={xummPayload}
+          isLoading={isLoading.connect}
+        />
+      ) : (
+        <>
+          <Box
+            as="section"
+            pt={{ base: "4", md: "8" }}
+            pb={{ base: "12", md: "24" }}
+          >
+            <Container maxW={"md"}>
+              <Box
+                bg="bg-surface"
+                boxShadow={"md"}
+                borderTopWidth="4px"
+                borderColor="blue.500"
+                borderRadius="md"
+              >
+                <Stack
+                  spacing="4"
+                  p="3"
+                  direction={{ base: "column", sm: "row" }}
+                  justify="space-between"
+                >
+                  <Text fontSize="md" fontWeight="bold">
+                    NFToupon
+                  </Text>
+
+                  <Stack spacing="0.2" alignItems={"end"}>
+                    <HStack justifyContent={"end"}>
+                      <Text
+                        sx={{
+                          width: "40%",
+                        }}
+                        colorScheme="orange"
+                        fontSize="sm"
+                        isTruncated
+                      >
+                        {walletAddress}
+                      </Text>
+                      <Icon
+                        onClick={onCopy}
+                        as={hasCopied ? BsClipboardCheck : BsClipboard}
+                        boxSize="4"
+                        color={hasCopied ? "green.500" : "muted"}
+                        cursor={"pointer"}
+                      />
+                    </HStack>
+                    <Button
+                      colorScheme={"red"}
+                      variant="ghost"
+                      onClick={() => setWalletAddress("")}
+                    >
+                      @disconnect
+                    </Button>
+                  </Stack>
+                </Stack>
+
+                <Box position="relative" key={"name"} overflow="hidden">
+                  <AspectRatio ratio={16 / 9}>
+                    <Image
+                      src={details.imageUrl}
+                      alt={"test"}
+                      fallback={<Skeleton />}
+                    />
+                  </AspectRatio>
+                  <Box
+                    position="absolute"
+                    inset="0"
+                    bgGradient="linear(to-b, transparent 60%, gray.900)"
+                    boxSize="full"
+                  />
+                  <Box
+                    position="absolute"
+                    bottom="6"
+                    width="full"
+                    textAlign="left"
+                  >
+                    <Text
+                      color="white"
+                      fontSize="md"
+                      fontWeight="semibold"
+                      px="5"
+                    >
+                      {details.description}
+                    </Text>
+                  </Box>
+                </Box>
+
+                <Container maxW="lg" pt={5}>
+                  <Textarea
+                    resize={"none"}
+                    mb={4}
+                    value={details.description}
+                    isReadOnly
+                  />
+
+                  <Box as="form">
+                    <Stack spacing={4} direction={["column", "row"]}>
+                      <Box>
+                        <FormControl id="offer" isRequired>
+                          <FormLabel htmlFor="offer">Offer</FormLabel>
+                          <NumberInput
+                            onChange={(e) => {
+                              setOffer(e);
+                            }}
+                            min={1}
+                          >
+                            <NumberInputField />
+                            <NumberInputStepper>
+                              <NumberIncrementStepper />
+                              <NumberDecrementStepper />
+                            </NumberInputStepper>
+                          </NumberInput>
+                        </FormControl>
+                      </Box>
+                      <Box>
+                        <FormControl id="expiryDate" isRequired>
+                          <FormLabel htmlFor="expiryDate">
+                            Expiry Date
+                          </FormLabel>
+                          <Input
+                            type="date"
+                            onChange={(e) => {
+                              setExpiryDate(e.target.value);
+                            }}
+                            min={localDate}
+                          />
+                        </FormControl>
+                      </Box>
+                    </Stack>
+                  </Box>
+                  <Stack py={5} spacing={4} direction={["column", "row"]}>
+                    <Button
+                      onClick={() => {
+                        sendStatus({
+                          id: details.id,
+                          status: "Offered",
+                          expiryDate: expiryDate,
+                          offer: offer,
+                          cryptoWalletAddress: details.cryptoWalletAddress,
+                          tokenId: details.tokenId,
+                        });
+                      }}
+                      w="full"
+                      colorScheme={"green"}
+                      loadingText="Accepting..."
+                      isLoading={isLoading.accept}
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                     w="full"
+                     colorScheme={"red"}
+                     onClick={rejectHandler}
+                     loadingText="Rejecting..."
+                     isLoading={isLoading.reject}
+                    >
+                      Reject
+                    </Button>
+                  </Stack>
+                </Container>
+
+                <Gallery
+                  images={data}
+                  nftDetailIndex={nftDetailIndex}
+                  setNftDetailIndex={updateNFTDetails}
+                />
+
+                <Footer />
+              </Box>
+            </Container>
+            <NftModal
             closeHandler={closeHandler}
             visible={visible}
-            connectWallet={connectWallet}
             xummPayload={xummPayload}
-            isLoading={isLoading}
           />
-        ) : (
-          <>
-            <Box
-              as="section"
-              pt={{ base: "4", md: "8" }}
-              pb={{ base: "12", md: "24" }}
-            >
-              <Container maxW={"md"}>
-                <Box
-                  bg="bg-surface"
-                  boxShadow={"md"}
-                  borderTopWidth="4px"
-                  borderColor="blue.500"
-                  borderRadius="md"
-                >
-                  <Stack
-                    spacing="4"
-                    p="5"
-                    direction={{ base: "column", sm: "row" }}
-                    justify="space-between"
-                  >
-                    <Text fontSize="lg" fontWeight="medium">
-                      NFToupon
-                    </Text>
-
-                    <Stack spacing="0.2" alignItems={"end"}>
-                      <HStack justifyContent={"end"}>
-                        <Text
-                          sx={{
-                            width: "40%",
-                            overflow: "hidden",
-                            "white-space": "nowrap",
-                            "text-overflow": "ellipsis",
-                          }}
-                          colorScheme="orange"
-                          fontSize="sm"
-                        >
-                          {"r3FGkaZpsAzP5mD4BdnZLHmknVoKRWQLna"}
-                        </Text>
-                        <Icon
-                          onClick={onCopy}
-                          ml={2}
-                          as={FiClipboard}
-                          boxSize="5"
-                          color="muted"
-                        />
-                      </HStack>
-                      <Button
-                        variant="primary"
-                        onClick={() => setWalletAddress("")}
-                      >
-                        @disconnect
-                      </Button>
-                    </Stack>
-                  </Stack>
-
-                  <Box position="relative" key={"name"} overflow="hidden">
-                    <AspectRatio ratio={16 / 9}>
-                      <Image
-                        src={
-                          "https://ipfs.io/ipfs/bafybeiaz5xlxsf4lg7khpmtkaat4dxkhhju5hr2nx7upbzzqpfcsyrcvpa"
-                        }
-                        alt={"test"}
-                        fallback={<Skeleton />}
-                      />
-                    </AspectRatio>
-                    <Box
-                      position="absolute"
-                      inset="0"
-                      bgGradient="linear(to-b, transparent 60%, gray.900)"
-                      boxSize="full"
-                    />
-                    <Box
-                      position="absolute"
-                      bottom="6"
-                      width="full"
-                      textAlign="left"
-                    >
-                      <Text
-                        color="white"
-                        fontSize="md"
-                        fontWeight="semibold"
-                        px="5"
-                      >
-                        Category
-                      </Text>
-                    </Box>
-                  </Box>
-
-                  <Container maxW="lg" pt={5}>
-                    <Textarea
-                      resize={"none"}
-                      mb={4}
-                      value="This will be an amazing description created by the creator"
-                      isReadOnly
-                    />
-
-                    <Box as="form">
-                      <Stack spacing={4} direction={["column", "row"]}>
-                        <Box>
-                          <FormControl id="offer" isRequired>
-                            <FormLabel htmlFor="offer">Offer</FormLabel>
-                            <NumberInput
-                              onChange={(e) => {
-                                setOffer(e);
-                                setValidation("");
-                              }}
-                              min={1}
-                            >
-                              <NumberInputField />
-                              <NumberInputStepper>
-                                <NumberIncrementStepper />
-                                <NumberDecrementStepper />
-                              </NumberInputStepper>
-                            </NumberInput>
-                          </FormControl>
-                        </Box>
-                        <Box>
-                          <FormControl id="expiryDate" isRequired>
-                            <FormLabel htmlFor="expiryDate">
-                              Expiry Date
-                            </FormLabel>
-                            <Input
-                              type="date"
-                              onChange={(e) => {
-                                setExpiryDate(e.target.value);
-                                setValidation("");
-                              }}
-                              min={localDate}
-                            />
-                          </FormControl>
-                        </Box>
-                      </Stack>
-                    </Box>
-                    <Stack py={5} spacing={4} direction={["column", "row"]}>
-                      <Button
-                        isDisabled={lockParameter}
-                        bg={"green.400"}
-                        color={"white"}
-                        w="full"
-                        _hover={{
-                          bg: "green.500",
-                        }}
-                      >
-                        Accept
-                      </Button>
-                      <Button
-                        bg={"red.400"}
-                        color={"white"}
-                        w="full"
-                        _hover={{
-                          bg: "red.500",
-                        }}
-                      >
-                        Reject
-                      </Button>
-                    </Stack>
-                  </Container>
-
-                  <Gallery images={images} />
-                </Box>
-              </Container>
-            </Box>
-          </>
-        )}
-      </Container>
+          </Box>
+        </>
+      )}
     </ChakraProvider>
   );
 };

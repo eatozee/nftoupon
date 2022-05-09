@@ -1,16 +1,8 @@
 import React from "react";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalBody,
-  ModalCloseButton,
-  Box,
-  Button,
-  Image,
-  Container,
-} from "@chakra-ui/react";
-import isEmpty from "lodash/isEmpty";
+import { Box, Button, Container } from "@chakra-ui/react";
+import { NftModal } from "./components/NftModal";
+import { Footer } from "./components/Footer";
+
 
 type ResponsePayload = {
   uuid: string;
@@ -39,57 +31,36 @@ export const Connect = (props: ConnectProps) => {
       >
         <Container maxW={"md"}>
           <Box
+            width={"410px"}
             bg="bg-surface"
             boxShadow={"md"}
             borderTopWidth="4px"
             borderColor="blue.500"
             borderRadius="md"
-            minHeight={"500px"}
-            width={"410px"}
-            display={"flex"}
-            alignItems={"center"}
-            justifyContent={"center"}
           >
-            <Button
-              rounded={"full"}
-              px={20}
-              colorScheme={"blue"}
-              bg={"blue.400"}
-              _hover={{ bg: "blue.500" }}
-              onClick={props.connectWallet}
-              isLoading={props.isLoading}
-              loadingText="Generating QR"
-              spinnerPlacement="start"
+            <Box
+              minHeight={"500px"}
+              display={"flex"}
+              alignItems={"center"}
+              justifyContent={"center"}
             >
-              Connect Wallet
-            </Button>
-            <Modal
-              isCentered
-              onClose={props.closeHandler}
-              isOpen={props.visible}
-              motionPreset="scale"
-              size={"md"}
-              aria-labelledby="modal-title"
-            >
-              <ModalOverlay />
-              <ModalContent>
-                <ModalCloseButton />
-                <ModalBody margin={5}>
-                  <>
-                    {!isEmpty(props.xummPayload) ? (
-                      <Image
-                        width="100%"
-                        height="100%"
-                        src={props.xummPayload?.refs?.qr_png || ""}
-                        alt="qr_code"
-                      />
-                    ) : (
-                      <div>Something went wrong</div>
-                    )}
-                  </>
-                </ModalBody>
-              </ModalContent>
-            </Modal>
+              <Button
+                px={20}
+                colorScheme={"blue"}
+                bg={"blue.400"}
+                _hover={{ bg: "blue.500" }}
+                onClick={props.connectWallet}
+                isLoading={props.isLoading}
+                loadingText="Generating QR"
+                spinnerPlacement="start"
+              >
+                Connect Wallet
+              </Button>
+            </Box>
+
+            <NftModal {...props} />
+
+            <Footer />
           </Box>
         </Container>
       </Box>
