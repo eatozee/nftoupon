@@ -1,6 +1,6 @@
 {
   "name": "nftoupon",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -31,8 +31,8 @@
   "dependencies": {
     "@chakra-ui/react": "^1.8.8",
     "@emotion/react": "^11.9.0",
-    "@emotion/styled":"^11.8.1",
-    "framer-motion" :"^6.3.3",
+    "@emotion/styled": "^11.8.1",
+    "framer-motion": "^6.3.3",
     "keen-slider": "^6.6.13"
   },
   "publishConfig": {
