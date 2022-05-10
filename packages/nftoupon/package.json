@@ -33,7 +33,6 @@
     "@emotion/react": "^11.9.0",
     "@emotion/styled":"^11.8.1",
     "framer-motion" :"^6.3.3",
-    "react-iconly": "^2.2.5",
     "keen-slider": "^6.6.13"
   },
   "publishConfig": {

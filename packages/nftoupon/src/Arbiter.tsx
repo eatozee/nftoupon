@@ -25,7 +25,7 @@ import {
 import { BsClipboardCheck, BsClipboard } from "react-icons/bs";
 
 import { Gallery } from "./components/Gallery";
-import { Connect } from "./Connect";
+import { Connect } from "./components/Connect";
 
 import isEmpty from "lodash/isEmpty";
 import { toast, Toaster } from "react-hot-toast";
@@ -42,34 +42,47 @@ import {
 import { fetcher } from "./common/helper";
 import { Footer } from "./components/Footer";
 import { NftModal } from "./components/NftModal";
+
 const DETAILS = {
-  id: 0,
+  id: "",
   title: "",
-  description: "",
   imageUrl: "",
+  description: "",
   status: "",
+  merchantCryptoWalletAddress: "",
   cryptoWalletAddress: "",
+  date: "",
+  offer: "",
   tokenId: "",
+  tokenOfferIndex: "",
 };
+
 type NFTouponPayload = {
-  id: number;
+  id: string;
   title: string;
   imageUrl: string;
   description: string;
   status: string;
+  merchantCryptoWalletAddress: string;
   cryptoWalletAddress: string;
+  date: string;
+  offer: string;
   tokenId: string;
+  tokenOfferIndex: string;
 }[];
-interface ResponsePayload {
+
+type ResponsePayload = {
   uuid: string;
   refs: {
     qr_png: string;
     websocket_status: string;
   };
-}
+};
+
 type Props = {
   NFToupon_Key: string;
 };
+
 export const Arbiter = ({ NFToupon_Key }: Props) => {
   const [walletAddress, setWalletAddress] = React.useState<string>("");
   const { hasCopied, onCopy } = useClipboard(walletAddress);
@@ -119,17 +132,20 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     }
     setIsLoading({ ...isLoading, connect: false });
   };
+
   const closeSocket = (ws: WebSocket) => {
     ws.close();
     setXummPayload(null);
     setVisible(false);
   };
+
   const signValidator = async (option: any, ws: WebSocket) => {
     const result = await fetcher(NFToupon_Key, CARGO_URL, option);
     setWalletAddress(result?.payload);
     setTransactionType(result?.tx_type);
     closeSocket(ws);
   };
+
   useEffect(() => {
     if (!isEmpty(xummPayload)) {
       const wsURL = xummPayload?.refs?.websocket_status;
@@ -193,7 +209,6 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     setIsLoading({ ...isLoading, reject: false });
   };
 
-
   useEffect(() => {
     const getDetails = async () => {
       try {
@@ -201,16 +216,12 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
           NFToupon_Key,
           GET_ARBITER_DETAILS_URL
         );
+
         setData(nftoupons);
+
         nftoupons.length > 0 &&
           setDetails({
-            id: nftoupons[0].id,
-            title: nftoupons[0].title,
-            description: nftoupons[0].description,
-            imageUrl: nftoupons[0].imageUrl,
-            status: nftoupons[0].status,
-            tokenId: nftoupons[0].tokenId,
-            cryptoWalletAddress: nftoupons[0].cryptoWalletAddress,
+            ...nftoupons[0],
           });
       } catch (error) {
         toast.error(ERROR_IN_API);
@@ -220,7 +231,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
   }, [transactionType, NFToupon_Key]);
 
   const sendStatus = async (sendDetails: {
-    id: number;
+    id: string;
     status: string;
     expiryDate: string;
     offer: string;
@@ -265,6 +276,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       setIsLoading({ ...isLoading, accept: false });
     }
   };
+
   return (
     <ChakraProvider>
       <Toaster
@@ -431,11 +443,11 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
                       Accept
                     </Button>
                     <Button
-                     w="full"
-                     colorScheme={"red"}
-                     onClick={rejectHandler}
-                     loadingText="Rejecting..."
-                     isLoading={isLoading.reject}
+                      w="full"
+                      colorScheme={"red"}
+                      onClick={rejectHandler}
+                      loadingText="Rejecting..."
+                      isLoading={isLoading.reject}
                     >
                       Reject
                     </Button>
@@ -452,10 +464,10 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
               </Box>
             </Container>
             <NftModal
-            closeHandler={closeHandler}
-            visible={visible}
-            xummPayload={xummPayload}
-          />
+              closeHandler={closeHandler}
+              visible={visible}
+              xummPayload={xummPayload}
+            />
           </Box>
         </>
       )}
