@@ -1,8 +1,10 @@
+//Common Constants for arbiter and creator
 const CONNECT_WALLET_URL = `https://eatozee-crypto.app/api/nftoupon/connect`;
 const PREVIEW_IMAGE_URL = `https://djfteveaaqqdylrqovkj.supabase.co/storage/v1/object/public/beta-eatozee-web/nft-free.webp`;
 const ERROR_IN_API = "Something went wrong. Please try again later.";
 const FAIL_SIGN = "Transaction failed to sign.";
 const EXPIRED = "Transaction expired.";
+
 const DEFAULT_PREVIEW_IMG_URL =
   "https://djfteveaaqqdylrqovkj.supabase.co/storage/v1/object/public/beta-eatozee-web/nft-free.webp";
 const ACCEPT_OFFER_URL = `https://eatozee-crypto.app/api/nftoupon/offer/accept`;
