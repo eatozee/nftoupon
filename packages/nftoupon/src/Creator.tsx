@@ -315,7 +315,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 		} catch (error) {
 			toast.error(ERROR_IN_API);
 		}
-
 		if (
 			transactionType === "NFTokenAcceptOffer" ||
 			transactionType === "NFTokenMint"
