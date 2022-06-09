@@ -40,15 +40,13 @@ export const NftModal = (props: NftModalProps) => {
       <ModalContent>
         <ModalCloseButton />
         <ModalBody margin={5}>
-          {!isEmpty(props.xummPayload) ? (
+          {!isEmpty(props.xummPayload) && (
             <Image
               width="100%"
               height="100%"
               src={props.xummPayload?.refs?.qr_png || ""}
               alt="qr_code"
             />
-          ) : (
-            <div>Something went wrong</div>
           )}
         </ModalBody>
       </ModalContent>

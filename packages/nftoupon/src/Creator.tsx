@@ -18,6 +18,7 @@ import {
 	InputGroup,
 	InputLeftElement,
 	Input,
+	extendTheme,
 } from "@chakra-ui/react";
 import { Dropzone } from "./components/Dropzone";
 import { FiArrowLeft, FiCalendar, FiSend } from "react-icons/fi";
@@ -31,14 +32,12 @@ import {
 	CONNECT_WALLET_URL,
 	CREATOR_REJECT_OFFER_URL,
 	CREATOR_SEND_DETAILS_URL,
-	DEFAULT_PREVIEW_IMG_URL,
 	ERROR_IN_API,
 	EXPIRED,
 	FAIL_SIGN,
 	GET_META_URL,
 	NFTOKEN_ACCEPT_OFFER_URL,
 	NFTOKEN_MINT_URL,
-	PREVIEW_IMAGE_URL,
 } from "./common/constants";
 import { Connect } from "./components/Connect";
 import isEmpty from "lodash/isEmpty";
@@ -47,6 +46,7 @@ import confetti from "canvas-confetti";
 import { Toaster, toast } from "react-hot-toast";
 import { Footer } from "./components/Footer";
 import { NftModal } from "./components/NftModal";
+import useSWR from "swr";
 
 type Props = {
 	NFToupon_Key: string;
@@ -89,6 +89,9 @@ type NFTouponPayload = {
 	tokenOfferIndex: string;
 }[];
 
+const nftouponFetcher = (url: string, apiKey: string, options: any) =>
+	fetcher(apiKey, url, options).then((r) => r);
+
 export const Creator = ({ NFToupon_Key }: Props) => {
 	const [imageURL, setImageURL] = React.useState<any>("");
 	const [textAreaValue, setTextAreaValue] = React.useState<string>("");
@@ -110,10 +113,17 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 		accept: false,
 		reject: false,
 	});
-	const [data, setData] = React.useState<NFTouponPayload>([]);
 
 	const [base64String, setBase64String] = React.useState<string | null>(null);
 	const [nftDetailIndex, setNftDetailIndex] = React.useState(0);
+
+	const { data: nfTouponData, error } = useSWR(
+		isEmpty(walletAddress)
+			? null
+			: [GET_META_URL, NFToupon_Key, { address: walletAddress }],
+			nftouponFetcher,
+		{ refreshInterval: 2000 }
+	);
 
 	const handleConfetti = () => {
 		confetti({
@@ -126,7 +136,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 
 	const updateNFTDetails = (index: number) => {
 		setNftDetailIndex(index);
-		setDetails(data[index]);
+		setDetails(nfTouponData?.nftoupons[index]);
 	};
 
 	const uploadFile = (event: any) => {
@@ -169,7 +179,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 			toast.error(ERROR_IN_API);
 		}
 		setNftDetailIndex(0);
-		setDetails(DETAILS);
 		setIsLoading({ ...isLoading, accept: false });
 	};
 
@@ -244,26 +253,6 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 		setVisible(false);
 	}, []);
 
-	useEffect(() => {
-		const getDetails = async () => {
-			try {
-				const options = { address: walletAddress };
-				const { nftoupons } = await fetcher(
-					NFToupon_Key,
-					GET_META_URL,
-					options
-				);
-
-				setData(nftoupons);
-			} catch (error) {
-				toast.error(ERROR_IN_API);
-			}
-		};
-		if (!isEmpty(walletAddress)) {
-			getDetails();
-		}
-	}, [walletAddress, transactionType, NFToupon_Key]);
-
 	const signValidator = useCallback(
 		async (option: any, ws: WebSocket) => {
 			try {
@@ -326,6 +315,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 		} catch (error) {
 			toast.error(ERROR_IN_API);
 		}
+
 		if (
 			transactionType === "NFTokenAcceptOffer" ||
 			transactionType === "NFTokenMint"
@@ -333,7 +323,8 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 			// reset to default
 			setTextAreaValue("");
 			setDetails(DETAILS);
-			setImageURL(DEFAULT_PREVIEW_IMG_URL);
+			setImageURL("");
+			setCharCounter(0);
 			setTransactionType("");
 		}
 	}, [
@@ -378,7 +369,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 							borderRadius="md"
 						>
 							<Stack
-								spacing="4"
+								spacing="3"
 								p="3"
 								direction={{ base: "column", sm: "row" }}
 								justify="space-between"
@@ -499,10 +490,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 												}
 											}}
 										/>
-										<Badge
-											colorScheme={"muted"}
-											mb={4}
-										>{`${charCounter}/200`}</Badge>
+										<Badge mb={4}>{`${charCounter}/200`}</Badge>
 										<FormControl id="file">
 											<Dropzone uploadFile={uploadFile} />
 										</FormControl>
@@ -603,9 +591,9 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 								</Stack>
 							</Container>
 
-							{!isEmpty(data) && (
+							{!isEmpty(nfTouponData?.nftoupons) && (
 								<Gallery
-									images={data}
+									images={nfTouponData?.nftoupons}
 									nftDetailIndex={nftDetailIndex}
 									setNftDetailIndex={updateNFTDetails}
 								/>
