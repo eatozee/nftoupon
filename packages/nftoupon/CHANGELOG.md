@@ -1,5 +1,11 @@
 # nftoupon
 
+## 2.0.0
+
+### Major Changes
+
+- refactored the creator and arbitor components
+
 ## 1.0.0
 
 ### Major Changes

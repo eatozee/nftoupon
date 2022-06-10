@@ -1,5 +1,11 @@
 # nftoupon-hooks
 
+## 2.0.0
+
+### Major Changes
+
+- refactored the hooks
+
 ## 1.0.1
 
 ### Patch Changes
