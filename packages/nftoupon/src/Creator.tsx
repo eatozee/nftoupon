@@ -208,6 +208,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 				const options = {
 					file: base64String,
 					address: walletAddress,
+					description: textAreaValue,
 				};
 				const { payload } = await fetcher(
 					NFToupon_Key,
