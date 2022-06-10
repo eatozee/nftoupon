@@ -21,6 +21,7 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
+  Heading,
 } from "@chakra-ui/react";
 import { BsClipboardCheck, BsClipboard } from "react-icons/bs";
 
@@ -42,6 +43,7 @@ import {
 import { fetcher } from "./common/helper";
 import { Footer } from "./components/Footer";
 import { NftModal } from "./components/NftModal";
+import useSWR from "swr";
 
 const DETAILS = {
   id: "",
@@ -83,6 +85,9 @@ type Props = {
   NFToupon_Key: string;
 };
 
+const nftouponFetcher = (url: string, apiKey: string) =>
+  fetcher(apiKey, url).then((r) => r);
+
 export const Arbiter = ({ NFToupon_Key }: Props) => {
   const [walletAddress, setWalletAddress] = React.useState<string>("");
   const { hasCopied, onCopy } = useClipboard(walletAddress);
@@ -112,9 +117,15 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
   };
   const [nftDetailIndex, setNftDetailIndex] = React.useState(0);
 
+  const { data: arbiterNfTouponData, error } = useSWR(
+    isEmpty(walletAddress) ? null : [GET_ARBITER_DETAILS_URL, NFToupon_Key],
+    nftouponFetcher,
+    { refreshInterval: 2000 }
+  );
+
   const updateNFTDetails = (index: number) => {
     setNftDetailIndex(index);
-    setDetails(data[index]);
+    setDetails(arbiterNfTouponData?.nftoupons[index]);
   };
 
   const connectWallet = async () => {
@@ -188,6 +199,9 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       } catch (error) {
         toast.error(ERROR_IN_API);
       }
+      if(transactionType === "NFTokenCreateOffer"){
+        setTransactionType("");
+      }
     }
   }, [transactionType, NFToupon_Key, details, sendProperties, walletAddress]);
 
@@ -210,25 +224,11 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
   };
 
   useEffect(() => {
-    const getDetails = async () => {
-      try {
-        const { nftoupons } = await fetcher(
-          NFToupon_Key,
-          GET_ARBITER_DETAILS_URL
-        );
-
-        setData(nftoupons);
-
-        nftoupons.length > 0 &&
-          setDetails({
-            ...nftoupons[0],
-          });
-      } catch (error) {
-        toast.error(ERROR_IN_API);
-      }
-    };
-    getDetails();
-  }, [transactionType, NFToupon_Key]);
+    arbiterNfTouponData?.nftoupons.length > 0 &&
+      setDetails({
+        ...arbiterNfTouponData?.nftoupons[0],
+      });
+  }, [arbiterNfTouponData]);
 
   const sendStatus = async (sendDetails: {
     id: string;
@@ -309,157 +309,165 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
                 borderColor="blue.500"
                 borderRadius="md"
               >
-                <Stack
-                  spacing="4"
-                  p="3"
-                  direction={{ base: "column", sm: "row" }}
-                  justify="space-between"
-                >
-                  <Text fontSize="md" fontWeight="bold">
-                    NFToupon
-                  </Text>
-
-                  <Stack spacing="0.2" alignItems={"end"}>
-                    <HStack justifyContent={"end"}>
-                      <Text
-                        sx={{
-                          width: "40%",
-                        }}
-                        colorScheme="orange"
-                        fontSize="sm"
-                        isTruncated
-                      >
-                        {walletAddress}
+                    <Stack
+                      spacing="3"
+                      p="3"
+                      direction={{ base: "column", sm: "row" }}
+                      justify="space-between"
+                    >
+                      <Text fontSize="md" fontWeight="bold">
+                        NFToupon
                       </Text>
-                      <Icon
-                        onClick={onCopy}
-                        as={hasCopied ? BsClipboardCheck : BsClipboard}
-                        boxSize="4"
-                        color={hasCopied ? "green.500" : "muted"}
-                        cursor={"pointer"}
-                      />
-                    </HStack>
-                    <Button
-                      colorScheme={"red"}
-                      variant="ghost"
-                      onClick={() => setWalletAddress("")}
-                    >
-                      @disconnect
-                    </Button>
-                  </Stack>
-                </Stack>
 
-                <Box position="relative" key={"name"} overflow="hidden">
-                  <AspectRatio ratio={16 / 9}>
-                    <Image
-                      src={details.imageUrl}
-                      alt={"test"}
-                      fallback={<Skeleton />}
-                    />
-                  </AspectRatio>
-                  <Box
-                    position="absolute"
-                    inset="0"
-                    bgGradient="linear(to-b, transparent 60%, gray.900)"
-                    boxSize="full"
-                  />
-                  <Box
-                    position="absolute"
-                    bottom="6"
-                    width="full"
-                    textAlign="left"
-                  >
-                    <Text
-                      color="white"
-                      fontSize="md"
-                      fontWeight="semibold"
-                      px="5"
-                    >
-                      {details.description}
-                    </Text>
-                  </Box>
-                </Box>
-
-                <Container maxW="lg" pt={5}>
-                  <Textarea
-                    resize={"none"}
-                    mb={4}
-                    value={details.description}
-                    isReadOnly
-                  />
-
-                  <Box as="form">
-                    <Stack spacing={4} direction={["column", "row"]}>
-                      <Box>
-                        <FormControl id="offer" isRequired>
-                          <FormLabel htmlFor="offer">Offer</FormLabel>
-                          <NumberInput
-                            onChange={(e) => {
-                              setOffer(e);
+                      <Stack spacing="0.2" alignItems={"end"}>
+                        <HStack justifyContent={"end"}>
+                          <Text
+                            sx={{
+                              width: "40%",
                             }}
-                            min={1}
+                            colorScheme="orange"
+                            fontSize="sm"
+                            isTruncated
                           >
-                            <NumberInputField />
-                            <NumberInputStepper>
-                              <NumberIncrementStepper />
-                              <NumberDecrementStepper />
-                            </NumberInputStepper>
-                          </NumberInput>
-                        </FormControl>
-                      </Box>
-                      <Box>
-                        <FormControl id="expiryDate" isRequired>
-                          <FormLabel htmlFor="expiryDate">
-                            Expiry Date
-                          </FormLabel>
-                          <Input
-                            type="date"
-                            onChange={(e) => {
-                              setExpiryDate(e.target.value);
-                            }}
-                            min={localDate}
+                            {walletAddress}
+                          </Text>
+                          <Icon
+                            onClick={onCopy}
+                            as={hasCopied ? BsClipboardCheck : BsClipboard}
+                            boxSize="4"
+                            color={hasCopied ? "green.500" : "muted"}
+                            cursor={"pointer"}
                           />
-                        </FormControl>
-                      </Box>
+                        </HStack>
+                        <Button
+                          colorScheme={"red"}
+                          variant="ghost"
+                          onClick={() => setWalletAddress("")}
+                        >
+                          @disconnect
+                        </Button>
+                      </Stack>
                     </Stack>
+                    {arbiterNfTouponData?.nftoupons.length > 0 ? (
+                  <>
+                    <Box position="relative" key={"name"} overflow="hidden">
+                      <AspectRatio ratio={16 / 9}>
+                        <Image
+                          src={details.imageUrl}
+                          alt={"test"}
+                          fallback={<Skeleton />}
+                        />
+                      </AspectRatio>
+                      <Box
+                        position="absolute"
+                        inset="0"
+                        bgGradient="linear(to-b, transparent 60%, gray.900)"
+                        boxSize="full"
+                      />
+                      <Box
+                        position="absolute"
+                        bottom="6"
+                        width="full"
+                        textAlign="left"
+                      >
+                        <Text
+                          color="white"
+                          fontSize="md"
+                          fontWeight="semibold"
+                          px="5"
+                        >
+                          {details.description}
+                        </Text>
+                      </Box>
+                    </Box>
+
+                    <Container maxW="lg" pt={5}>
+                      <Textarea
+                        resize={"none"}
+                        mb={4}
+                        value={details.description}
+                        isReadOnly
+                      />
+
+                      <Box as="form">
+                        <Stack spacing={4} direction={["column", "row"]}>
+                          <Box>
+                            <FormControl id="offer" isRequired>
+                              <FormLabel htmlFor="offer">Offer</FormLabel>
+                              <NumberInput
+                                onChange={(e) => {
+                                  setOffer(e);
+                                }}
+                                min={1}
+                              >
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                  <NumberIncrementStepper />
+                                  <NumberDecrementStepper />
+                                </NumberInputStepper>
+                              </NumberInput>
+                            </FormControl>
+                          </Box>
+                          <Box>
+                            <FormControl id="expiryDate" isRequired>
+                              <FormLabel htmlFor="expiryDate">
+                                Expiry Date
+                              </FormLabel>
+                              <Input
+                                type="date"
+                                onChange={(e) => {
+                                  setExpiryDate(e.target.value);
+                                }}
+                                min={localDate}
+                              />
+                            </FormControl>
+                          </Box>
+                        </Stack>
+                      </Box>
+                      <Stack py={5} spacing={4} direction={["column", "row"]}>
+                        <Button
+                          onClick={() => {
+                            sendStatus({
+                              id: details.id,
+                              status: "Offered",
+                              expiryDate: expiryDate,
+                              offer: offer,
+                              cryptoWalletAddress: details.cryptoWalletAddress,
+                              tokenId: details.tokenId,
+                            });
+                          }}
+                          w="full"
+                          colorScheme={"green"}
+                          loadingText="Offering..."
+                          isLoading={isLoading.accept}
+                        >
+                          Offer
+                        </Button>
+                        <Button
+                          w="full"
+                          colorScheme={"red"}
+                          onClick={rejectHandler}
+                          loadingText="Rejecting..."
+                          isLoading={isLoading.reject}
+                        >
+                          Reject
+                        </Button>
+                      </Stack>
+                    </Container>
+
+                    {!isEmpty(arbiterNfTouponData?.nftoupons) && (
+                      <Gallery
+                        images={arbiterNfTouponData?.nftoupons}
+                        nftDetailIndex={nftDetailIndex}
+                        setNftDetailIndex={updateNFTDetails}
+                      />
+                    )}
+                  </>
+                ) : (
+                  <Box minH={"500px"} display={"flex"} alignItems={"center"} justifyContent={"center"}>
+                    <Heading>No Data Found</Heading>
                   </Box>
-                  <Stack py={5} spacing={4} direction={["column", "row"]}>
-                    <Button
-                      onClick={() => {
-                        sendStatus({
-                          id: details.id,
-                          status: "Offered",
-                          expiryDate: expiryDate,
-                          offer: offer,
-                          cryptoWalletAddress: details.cryptoWalletAddress,
-                          tokenId: details.tokenId,
-                        });
-                      }}
-                      w="full"
-                      colorScheme={"green"}
-                      loadingText="Accepting..."
-                      isLoading={isLoading.accept}
-                    >
-                      Accept
-                    </Button>
-                    <Button
-                      w="full"
-                      colorScheme={"red"}
-                      onClick={rejectHandler}
-                      loadingText="Rejecting..."
-                      isLoading={isLoading.reject}
-                    >
-                      Reject
-                    </Button>
-                  </Stack>
-                </Container>
-
-                <Gallery
-                  images={data}
-                  nftDetailIndex={nftDetailIndex}
-                  setNftDetailIndex={updateNFTDetails}
-                />
-
+                )}
                 <Footer />
               </Box>
             </Container>
