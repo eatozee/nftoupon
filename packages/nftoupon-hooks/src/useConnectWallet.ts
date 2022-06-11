@@ -11,24 +11,24 @@ export function useConnectWallet(props: Props ): useConnectWalletReturn {
     const { NFToupon_Key } = props;
     let error = "";
     let xummPayload = null;
+    let connect = null;
 
     try {
-    const connect = async() => {
-        const { payload } = await fetcher(NFToupon_Key, CONNECT_WALLET_URL);
-    
-            if (isEmpty(payload)) {
-                xummPayload = null
-            }else {
-                xummPayload = payload;
-            }
-    }
-    connect();
-    } catch (error) {
+        connect = async() => {
+            const { payload } = await fetcher(NFToupon_Key, CONNECT_WALLET_URL);
+        
+                if (isEmpty(payload)) {
+                    xummPayload = null
+                }else {
+                    xummPayload = payload;
+                }
+        }
+    } catch (e) {
         error = ERROR_IN_API;
     }
 
     return {
-        payload: xummPayload, error
+        payload: xummPayload, error, connect
     }
 };
 
