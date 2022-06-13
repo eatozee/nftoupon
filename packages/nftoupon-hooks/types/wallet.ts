@@ -1,3 +1,8 @@
-export type useConnectWalletReturn = {
-   payload: any, error: string, connect: (() => Promise<void>) | null
-}
+export type ConnectCallback = {
+  payload: any | null;
+  error: string | null;
+};
+
+export type UseConnectWalletReturn = () => Promise<ConnectCallback>;
+
+
