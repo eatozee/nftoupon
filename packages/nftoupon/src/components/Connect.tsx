@@ -45,7 +45,7 @@ export const Connect = (props: ConnectProps) => {
 						>
 							<Button
 								px={20}
-                colorScheme="blue"
+								colorScheme="blue"
 								onClick={props.connectWallet}
 								isLoading={props.isLoading}
 								loadingText="Generating QR"

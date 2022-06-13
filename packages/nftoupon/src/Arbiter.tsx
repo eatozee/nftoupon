@@ -199,7 +199,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       } catch (error) {
         toast.error(ERROR_IN_API);
       }
-      if(transactionType === "NFTokenCreateOffer"){
+      if (transactionType === "NFTokenCreateOffer") {
         setTransactionType("");
       }
     }
@@ -309,46 +309,46 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
                 borderColor="blue.500"
                 borderRadius="md"
               >
-                    <Stack
-                      spacing="3"
-                      p="3"
-                      direction={{ base: "column", sm: "row" }}
-                      justify="space-between"
-                    >
-                      <Text fontSize="md" fontWeight="bold">
-                        NFToupon
-                      </Text>
+                <Stack
+                  spacing="3"
+                  p="3"
+                  direction={{ base: "column", sm: "row" }}
+                  justify="space-between"
+                >
+                  <Text fontSize="md" fontWeight="bold">
+                    NFToupon
+                  </Text>
 
-                      <Stack spacing="0.2" alignItems={"end"}>
-                        <HStack justifyContent={"end"}>
-                          <Text
-                            sx={{
-                              width: "40%",
-                            }}
-                            colorScheme="orange"
-                            fontSize="sm"
-                            isTruncated
-                          >
-                            {walletAddress}
-                          </Text>
-                          <Icon
-                            onClick={onCopy}
-                            as={hasCopied ? BsClipboardCheck : BsClipboard}
-                            boxSize="4"
-                            color={hasCopied ? "green.500" : "muted"}
-                            cursor={"pointer"}
-                          />
-                        </HStack>
-                        <Button
-                          colorScheme={"red"}
-                          variant="ghost"
-                          onClick={() => setWalletAddress("")}
-                        >
-                          @disconnect
-                        </Button>
-                      </Stack>
-                    </Stack>
-                    {arbiterNfTouponData?.nftoupons.length > 0 ? (
+                  <Stack spacing="0.2" alignItems={"end"}>
+                    <HStack justifyContent={"end"}>
+                      <Text
+                        sx={{
+                          width: "40%",
+                        }}
+                        colorScheme="orange"
+                        fontSize="sm"
+                        isTruncated
+                      >
+                        {walletAddress}
+                      </Text>
+                      <Icon
+                        onClick={onCopy}
+                        as={hasCopied ? BsClipboardCheck : BsClipboard}
+                        boxSize="4"
+                        color={hasCopied ? "green.500" : "muted"}
+                        cursor={"pointer"}
+                      />
+                    </HStack>
+                    <Button
+                      colorScheme={"red"}
+                      variant="ghost"
+                      onClick={() => setWalletAddress("")}
+                    >
+                      @disconnect
+                    </Button>
+                  </Stack>
+                </Stack>
+                {arbiterNfTouponData?.nftoupons.length > 0 ? (
                   <>
                     <Box position="relative" key={"name"} overflow="hidden">
                       <AspectRatio ratio={16 / 9}>
@@ -464,7 +464,12 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
                     )}
                   </>
                 ) : (
-                  <Box minH={"500px"} display={"flex"} alignItems={"center"} justifyContent={"center"}>
+                  <Box
+                    minH={"500px"}
+                    display={"flex"}
+                    alignItems={"center"}
+                    justifyContent={"center"}
+                  >
                     <Heading>No Data Found</Heading>
                   </Box>
                 )}
