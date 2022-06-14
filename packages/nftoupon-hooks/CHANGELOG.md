@@ -1,5 +1,11 @@
 # nftoupon-hooks
 
+## 2.0.3
+
+### Patch Changes
+
+- added websocket to connect wallet hook
+
 ## 2.0.2
 
 ### Patch Changes
