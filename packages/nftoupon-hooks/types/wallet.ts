@@ -1,8 +1,22 @@
 export type ConnectCallback = {
-  payload: any | null;
+  qrCode: string | null;
   error: string | null;
 };
 
-export type UseConnectWalletReturn = () => Promise<ConnectCallback>;
+export type Wallet = {
+  address: string | null;
+  error: string | null;
+}
 
+export type UseConnectWalletReturn = {
+  connect: () => Promise<ConnectCallback>;
+  walletPayload: Wallet;
+};
 
+export type XummPayload = {
+	uuid: string;
+	refs: {
+		qr_png: string;
+		websocket_status: string;
+	};
+} | null;

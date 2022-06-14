@@ -1,5 +1,11 @@
 # nftoupon-hooks
 
+## 2.0.2
+
+### Patch Changes
+
+- generated the new data types
+
 ## 2.0.1
 
 ### Patch Changes
