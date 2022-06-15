@@ -1,10 +1,11 @@
 import React from "react";
 import isEmpty from "lodash/isEmpty";
-import { CONNECT_WALLET_URL, ERROR_IN_API } from "../common/constants";
+import { CREATOR_REJECT_OFFER_URL, ERROR_IN_API } from "../common/constants";
 import { fetcher } from "../common/helper";
 import {
-  ConnectCallback,
-  UseConnectWalletReturn,
+  RejectCallback,
+  RejectOption,
+  UseRejectOfferReturn,
   Wallet,
   XummPayload,
 } from "../types/wallet";
@@ -14,31 +15,43 @@ type Props = {
   NFToupon_Key: string;
 };
 
-export function useConnectWallet(props: Props): UseConnectWalletReturn {
+const DETAILS = {
+  id: "",
+  title: "",
+  imageUrl: "",
+  description: "",
+  status: "",
+  merchantCryptoWalletAddress: "",
+  cryptoWalletAddress: "",
+  date: "",
+  offer: "",
+  tokenId: "",
+  tokenOfferIndex: "",
+};
+
+export function useRejectOffer(props: Props): UseRejectOfferReturn {
   const { NFToupon_Key } = props;
   const [xummPayload, setXummPayload] = React.useState<XummPayload>(null);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [walletPayload, setWalletPayload] = React.useState<Wallet>({
     address: null,
     error: null,
   });
 
-  const connect = async (): Promise<ConnectCallback> => {
-    let xummPayload = null;
+  const reject = async (options: RejectOption): Promise<RejectCallback> => {
+    let error = null;
+    const { id } = options;
 
+    setIsLoading(true);
     try {
-      const { payload } = await fetcher(NFToupon_Key, CONNECT_WALLET_URL);
-
-      if (isEmpty(payload)) {
-        xummPayload = null;
-      } else {
-        xummPayload = payload;
-      }
-
-      setXummPayload(xummPayload);
-      return { qrCode: xummPayload?.refs?.qr_png, error: null };
+      const options = { status: "Declined", id };
+      await fetcher(NFToupon_Key, CREATOR_REJECT_OFFER_URL, options);
     } catch (e) {
-      return { qrCode: null, error: ERROR_IN_API };
+      error = ERROR_IN_API;
     }
+    setIsLoading(false);
+
+    return { payload: DETAILS, error, nftDetailsIndex: 0 };
   };
 
   React.useEffect(() => {
@@ -63,5 +76,5 @@ export function useConnectWallet(props: Props): UseConnectWalletReturn {
     }
   }, [xummPayload, NFToupon_Key]);
 
-  return { connect, walletPayload };
+  return { reject, walletPayload, loading: isLoading };
 }
