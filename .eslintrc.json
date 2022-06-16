@@ -2,7 +2,7 @@
 	"extends": ["next", "prettier"],
 	"settings": {
 		"next": {
-			"rootDir": ["apps/*/", "packages/*/"]
+			"rootDir": ["packages/*/"]
 		}
 	},
 	"rules": {
