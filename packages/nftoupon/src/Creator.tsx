@@ -133,6 +133,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 			  This binary data is then translated to a text representation (base64) and transferred as text. */
 
       // base64 is an algorithm for encoding and decoding an object to ASCII format.
+      /* eslint-disable  @typescript-eslint/no-explicit-any */
       const base64String: any = reader?.result;
 
       setBase64String(base64String.split(",")[1]);

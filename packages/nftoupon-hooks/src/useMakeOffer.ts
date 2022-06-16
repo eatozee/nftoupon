@@ -27,14 +27,8 @@ export function useMakeOffer(props: Props): UseMakeOfferReturn {
   const make = async (options: MakeOption): Promise<MakeCallback> => {
     let error = null;
     let makePayload = null;
-    const {
-      offer,
-      expiryDate,
-      merchantAddress,
-      walletAddress,
-      tokenId,
-      status,
-    } = options;
+    const { offer, expiryDate, merchantAddress, walletAddress, tokenId } =
+      options;
 
     if (isEmpty(offer) && !isEmpty(expiryDate)) {
       error = "Please add the Offer";
@@ -67,7 +61,7 @@ export function useMakeOffer(props: Props): UseMakeOfferReturn {
           makePayload = payload;
           setXummPayload(payload);
         }
-      } catch (error) {
+      } catch (e) {
         error = ERROR_IN_API;
       }
       setIsLoading(false);
