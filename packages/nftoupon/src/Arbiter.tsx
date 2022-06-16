@@ -59,20 +59,6 @@ const DETAILS = {
   tokenOfferIndex: "",
 };
 
-type NFTouponPayload = {
-  id: string;
-  title: string;
-  imageUrl: string;
-  description: string;
-  status: string;
-  merchantCryptoWalletAddress: string;
-  cryptoWalletAddress: string;
-  date: string;
-  offer: string;
-  tokenId: string;
-  tokenOfferIndex: string;
-}[];
-
 type ResponsePayload = {
   uuid: string;
   refs: {
@@ -149,6 +135,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     setVisible(false);
   };
 
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
   const signValidator = async (option: any, ws: WebSocket) => {
     const result = await fetcher(NFToupon_Key, CARGO_URL, option);
     setWalletAddress(result?.payload);
@@ -161,11 +148,8 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
       const wsURL = xummPayload?.refs?.websocket_status;
       const ws = new WebSocket(wsURL || "");
       ws.onmessage = (event) => {
-        const { opened, payload_uuidv4, signed, expired } = JSON.parse(
-          event.data
-        );
-        if (opened) {
-        } else if (expired) {
+        const { payload_uuidv4, signed, expired } = JSON.parse(event.data);
+        if (expired) {
           closeSocket(ws);
           toast.error(EXPIRED);
         } else if (!isEmpty(payload_uuidv4) && !signed) {
