@@ -23,6 +23,8 @@ jobs:
       # >>> Install your own deps here (npm install, etc) <<<
       - name: Trunk Check
         uses: trunk-io/trunk-action@v1
+        with:
+          cache: false
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
