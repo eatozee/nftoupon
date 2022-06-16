@@ -1,0 +1,16 @@
+version: 0.1
+cli:
+  version: 0.13.1-beta
+lint:
+  enabled:
+    - actionlint@1.6.13
+    - eslint@8.17.0
+    - gitleaks@8.8.7
+    - markdownlint@0.31.1
+    - prettier@2.7.1
+    - svgo@2.8.0
+  ignore:
+    - linters: [ALL]
+      paths:
+        - "**/node_modules/**"
+        - "**/apps/**"
