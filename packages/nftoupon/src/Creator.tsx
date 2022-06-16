@@ -18,7 +18,6 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
-  extendTheme,
 } from "@chakra-ui/react";
 import { Dropzone } from "./components/Dropzone";
 import { FiArrowLeft, FiCalendar, FiSend } from "react-icons/fi";
@@ -75,20 +74,6 @@ type ResponsePayload = {
   imageUrl: string;
 };
 
-type NFTouponPayload = {
-  id: string;
-  title: string;
-  imageUrl: string;
-  description: string;
-  status: string;
-  merchantCryptoWalletAddress: string;
-  cryptoWalletAddress: string;
-  date: string;
-  offer: string;
-  tokenId: string;
-  tokenOfferIndex: string;
-}[];
-
 const nftouponFetcher = (url: string, apiKey: string, options: any) =>
   fetcher(apiKey, url, options).then((r) => r);
 
@@ -117,7 +102,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
   const [base64String, setBase64String] = React.useState<string | null>(null);
   const [nftDetailIndex, setNftDetailIndex] = React.useState(0);
 
-  const { data: nfTouponData, error } = useSWR(
+  const { data: nfTouponData } = useSWR(
     isEmpty(walletAddress)
       ? null
       : [GET_META_URL, NFToupon_Key, { address: walletAddress }],
@@ -148,7 +133,7 @@ export const Creator = ({ NFToupon_Key }: Props) => {
 			  This binary data is then translated to a text representation (base64) and transferred as text. */
 
       // base64 is an algorithm for encoding and decoding an object to ASCII format.
-      const base64String: any = reader.result;
+      const base64String: any = reader?.result;
 
       setBase64String(base64String.split(",")[1]);
       setImageURL(base64String);

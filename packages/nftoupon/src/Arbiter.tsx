@@ -97,7 +97,6 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
     accept: false,
     reject: false,
   });
-  const [data, setData] = React.useState<NFTouponPayload>([]);
   const [offer, setOffer] = React.useState("");
   const [expiryDate, setExpiryDate] = React.useState("");
   const localDate = new Date().toLocaleDateString("en-CA");
@@ -117,7 +116,7 @@ export const Arbiter = ({ NFToupon_Key }: Props) => {
   };
   const [nftDetailIndex, setNftDetailIndex] = React.useState(0);
 
-  const { data: arbiterNfTouponData, error } = useSWR(
+  const { data: arbiterNfTouponData } = useSWR(
     isEmpty(walletAddress) ? null : [GET_ARBITER_DETAILS_URL, NFToupon_Key],
     nftouponFetcher,
     { refreshInterval: 2000 }
