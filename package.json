@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@changesets/cli": "^2.22.0",
+    "@docusaurus/theme-search-algolia": "^2.0.0-beta.21",
     "eslint-config-next": "^12.1.6",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-react": "7.28.0"
