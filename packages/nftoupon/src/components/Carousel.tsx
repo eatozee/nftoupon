@@ -10,10 +10,6 @@ import {
 import { KeenSliderOptions, useKeenSlider } from "keen-slider/react.js"; // using version 6.6.10
 import * as React from "react";
 
-interface CarouselSlideProps extends BoxProps {
-  slideIndex: number;
-}
-
 export const Carousel = React.forwardRef<HTMLDivElement, FlexProps>(
   function Carousel(props, ref) {
     return (
@@ -59,6 +55,7 @@ export const CarouselIconButton = (props: IconButtonProps) => (
   />
 );
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const useCarousel = (images: any, options?: KeenSliderOptions) => {
   const defaultOptions = { selector: ".chakra-carousel__slide" };
   return useKeenSlider<HTMLDivElement>({
