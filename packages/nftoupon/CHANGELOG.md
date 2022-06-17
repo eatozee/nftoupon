@@ -1,5 +1,23 @@
 # nftoupon
 
+## 2.0.4
+
+### Patch Changes
+
+- added the keen slider to depenedency
+
+## 2.0.3
+
+### Patch Changes
+
+- fix the build issue
+
+## 2.0.2
+
+### Patch Changes
+
+- fix the extension
+
 ## 2.0.1
 
 ### Patch Changes
