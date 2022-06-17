@@ -14,3 +14,4 @@ lint:
       paths:
         - "**/node_modules/**"
         - "**/apps/**"
+        - "**/CHANGELOG.md"
