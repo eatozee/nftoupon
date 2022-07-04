@@ -6,16 +6,16 @@ Description:
 Implement prototype integrated with XRPL Testnet (xls20-sandbox.rippletest.net:51233) with feature creating nft coupons and integrated with xumm app
 
 1. https://github.com/eatozee/nftoupon
-2. Integrate nftoupon widget to nextjs application (i.e. React ecosystem)
+2. Integrate nftoupon widget to eatozee ecosystem application (i.e. React ecosystem)
 
 ## Public beta test (Month 2)
 
 Description:
-Refactor widget, Create collectibles component, support IOU token
+Refactor widget, Create collectibles component
 
 1. Nftoupon is the open source widget so any project owner can use it.
 2. Refactor nftoupon widget
-3. Create collectible component and IOU token support with widget
+3. Create collectible component
 
 ## Public beta test (Month 3)
 
@@ -28,7 +28,7 @@ Create a dashboard to the user to provide a api key
 ## Private beta test (Month 4)
 
 Description:
-Integrate nftoupon widget with www.eatozee.com, https://admin.eatozee.com/#/login and eatozee mobile products
+Integrate nftoupon widget with www.eatozee.com, https://admin.eatozee.com/#/login
 
 1. Nftoupon widget to eatozee products
 2. Get feedback from user and clients (right now eatozee has 5 merchant)
@@ -36,7 +36,7 @@ Integrate nftoupon widget with www.eatozee.com, https://admin.eatozee.com/#/logi
 ## Internal Organization Test (Month 5)
 
 Description:
-Nftoupon widget compatability and smart contract checker implementation
+Nftoupon widget compatibility and smart contract checker implementation
 
 1. Make nftoupon compatible with multiple platform (right now supporting to react ecosystem)
 2. Smart contract to verify the coupon apply
@@ -46,7 +46,7 @@ Nftoupon widget compatability and smart contract checker implementation
 ## Internal Organization Test (Month 6)
 
 Description:
-Implement crypto wallet
+Implement IOU token with nftoupon widget
 
-1. Implement crypto wallet and integrate with eatozee product
+1. Support IOU token
 2. Test with a batch of users

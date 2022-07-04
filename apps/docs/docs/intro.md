@@ -76,4 +76,4 @@ const ExampleOne = () => <Collectibles NFToupon_Key="your-api-key" />;
 
 2. https://www.youtube.com/watch?v=s-01b1TpxJI
 
-**Note: You will then require a `NFToupon-KEY` to use it in your project build. You can contact `admin@eatozee.com` to get your unique `NFToupon-KEY`.**
+**Note: You will then require a `NFToupon-KEY` to use it in your project build. You can contact `admin@eatozee.com` to get your unique `NFToupon-KEY`. We are working on developer console dashboard, soon we will publish on twitter once we are ready**
